@@ -1,34 +1,100 @@
 import { html, HtmlTemplate } from 'litscript/src/templates/html'
 
-type Parser = (symbol: Symbol) => HtmlTemplate
+class ParserInput {
+    private text: string
+    private pos: number
+    private symbols: SymbolTable
+    
+    constructor(text: string, symbols: SymbolTable) {
+        this.text = text
+        this.symbols = symbols
+        this.pos = 0        
+    }
+
+    skipWhitespace(): number {
+        while (this.pos < this.text.length && /\w/.test(this.text[this.pos]))
+            ++this.pos
+        return this.pos < this.text.length ? this.pos : -1
+    }
+    
+    nextSymbol(): Symbol {
+        let pos = this.skipWhitespace()
+        if (pos < 0)
+            return error("Input exhausted")
+        let curr = this.text[pos]
+        let syms = this.symbols[curr]
+        let i = 0
+        while (i < syms.length) {
+            let sym = syms[i]
+            let len = syms[i].input.length
+            if (this.text.slice(pos, pos + len) == sym.input) {
+                this.pos += len
+                return sym
+            }
+        }
+        return error("Invalid symbol")
+    }
+    
+    peekChar(): string {
+        return this.text[this.pos] || ""
+    }
+
+    skipChar() {
+        this.pos++
+    }
+}
+
+type Parser = (input: ParserInput) => HtmlTemplate
 
 interface Symbol {
     input: string
     parser: Parser
 }
 
-interface ConstSymbol extends Symbol {
-    type: 'const'
-    output: string
+type SymbolTable = { [firstLetter: string]: Symbol[] }
+
+function error(msg: string): Symbol {
+    return { input: "", parser: _ => html`<merror><mtext>${msg
+       }</mtext></merror>` }
 }
 
-function parseConstIdent(symbol: ConstSymbol): HtmlTemplate {
-    return html`<mi>${symbol.output}</mi>`
+function constIdent(input: string, output: string): Symbol {
+    return { input, parser: _ => html`<mi>${output}</mi>` }
 }
 
-function parseConstOper(symbol: ConstSymbol): HtmlTemplate {
-    return html`<mo>${symbol.output}</mo>`
+function constOper(input: string, output: string): Symbol {
+    return { input, parser: _ => html`<mo>${output}</mo>` }
 }
 
-function constIdent(input: string, output: string): ConstSymbol {
-    return { type: 'const', input, output, parser: parseConstIdent }
+function underOverParser(base: HtmlTemplate): Parser {
+    return input => {
+        let under: HtmlTemplate | undefined
+        let over: HtmlTemplate | undefined
+        if (input.peekChar() == "_") {
+            input.skipChar()
+            under = sexprParser(input)
+        }
+        if (input.peekChar() == "^") {
+            input.skipChar()
+            over = sexprParser(input)
+        }
+        return under && over ?
+                html`<munderover>${base}${under}${over}</munderover>` :
+            under ? html`<munder>${base}${under}</munder>` :
+            over ? html`<munder>${base}${over}</munder>` :
+            base
+    }
 }
 
-function constOper(input: string, output: string): ConstSymbol {
-    return { type: 'const', input, output, parser: parseConstOper }
+function sexprParser(input: ParserInput): HtmlTemplate {
+    return html``
 }
 
-const symbols: { [firstLetter: string]: Symbol[] } = {
+function underOverOper(input: string, oper: string): Symbol {
+    return { input, parser: underOverParser(html`<mo>${oper}</mo>`) }
+}
+
+const symbols: SymbolTable = {
     a: [
         constIdent("alpha", "\u03B1")
     ],
@@ -81,20 +147,23 @@ const symbols: { [firstLetter: string]: Symbol[] } = {
         constIdent("nu", "\u03BD")
     ],
     o: [
-        constIdent("omega", "\u03C9")
+        constIdent("omega", "\u03C9"),
+        constOper("o+", "\u2295"),
+        constOper("ox", "\u2295"),
+        constOper("o.", "\u2299"),
     ],
     O: [
         constOper("Omega", "\u03A9")
     ],
     p: [
         constIdent("phi", "\u03D5"),
+        constIdent("psi", "\u03C8"),
         constIdent("pi", "\u03C0"),
-        constIdent("psi", "\u03C8")
     ],
     P: [
         constOper("Phi", "\u03A6"),
+        constIdent("Psi", "\u03A8"),
         constOper("Pi", "\u03A0"),
-        constIdent("Psi", "\u03A8")
     ],
     q: [
         constIdent("", "")
@@ -106,7 +175,9 @@ const symbols: { [firstLetter: string]: Symbol[] } = {
         constIdent("sigma", "\u03C3")
     ],
     S: [
-        constOper("Sigma", "\u03A3")
+        constOper("Sigma", "\u03A3"),
+        constOper("setminus", "\\"),
+        underOverOper("sum", "\u2211")
     ],
     t: [
         constIdent("tau", "\u03C4"),
@@ -127,7 +198,8 @@ const symbols: { [firstLetter: string]: Symbol[] } = {
         constIdent("", "")
     ],
     x: [
-        constIdent("xi", "\u03BE")
+        constIdent("xi", "\u03BE"),
+        constOper("xx", "\u00D7"),
     ],
     X: [
         constIdent("Xi", "\u039E")
@@ -137,6 +209,30 @@ const symbols: { [firstLetter: string]: Symbol[] } = {
     ],
     z: [
         constIdent("zeta", "\u03B6")
+    ],
+    "-": [
+        constOper("-", "\u0096"),
+        constOper("-:", "\u00F7")
+    ],
+    "*": [
+        constOper("*", "\u22C5"),
+        constOper("**", "\u2217"),
+        constOper("***", "\u22C6")
+    ],
+    "/": [
+        constOper("//", "/"),
+    ],
+    "\\": [
+        constOper("\\\\", "\\"),
+    ],
+    "|": [
+        constOper("|><", "\u22C9"),
+    ],
+    ">": [
+        constOper("><|", "\u22CA"),
+        constOper("|><|", "\u22C8"),
+    ],
+    "@": [
+        constOper("@", "\u2218"),
     ]
 }
-
