@@ -1,0 +1,21 @@
+{
+    "updateToc": true,
+    "files": [
+        "**.md"
+    ],
+    "exclude": [
+        ".git",
+        "node_modules",
+        "lib",
+        "README.md"
+    ],
+    "deployMode": "dev",
+    "frontMatter": {
+        "projectName": "AsciiMath2ML",
+        "repository": "https://github.com/johtela/asciimath2ml",
+        "download": "https://www.npmjs.com/package/asciimath2ml",
+        "license": "license.html",
+        "footer": "Copyright © 2024 Tommi Johtela",
+        "syntaxHighlight": "son-of-obsidian"
+    }
+}
