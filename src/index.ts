@@ -72,6 +72,10 @@ type Parser = (input: ParserInput) => HtmlTemplate
 enum SymbolKind {
     Const,
     UnderOver,
+    LeftBracket,
+    RightBracket,
+    Unary,
+    Binary
 }
 
 interface Symbol {
@@ -86,32 +90,52 @@ function error(msg: string): Symbol {
     return { 
         kind: SymbolKind.Const, 
         input: "", 
-        parser: _ => html`<merror><mtext>${msg}</mtext></merror>` 
+        parser: () => html`<merror><mtext>${msg}</mtext></merror>` 
     }
 }
 
-function constIdent(input: string, output: string): Symbol {
+function ident(input: string, output = input): Symbol {
     return { 
         kind: SymbolKind.Const, 
         input, 
-        parser: _ => html`<mi>${output}</mi>` 
+        parser: () => html`<mi>${output}</mi>` 
     }
 }
 
-function constOper(input: string, output: string): Symbol {
+function oper(input: string, output: string): Symbol {
     return { 
         kind: SymbolKind.Const, 
         input, 
-        parser: _ => html`<mo>${output}</mo>` 
+        parser: () => html`<mo>${output}</mo>` 
     }
 }
 
-function textOper(input: string, output: string): Symbol {
+function textOper(input: string, output = input): Symbol {
     return { 
         kind: SymbolKind.Const, 
         input, 
-        parser: _ => html`<mrow><mspace width="1ex"/><mtext>${output            
+        parser: () => html`<mrow><mspace width="1ex"/><mtext>${output            
             }</mtext><mspace width="1ex"/></mrow>` 
+    }
+}
+
+function leftBracket(input: string, output?: string): Symbol {
+    return {
+        kind: SymbolKind.LeftBracket,
+        input,
+        parser: output ? 
+            () => html`<mo>${output}</mo>` :
+            () => html``
+    }
+}
+
+function rightBracket(input: string, output?: string): Symbol {
+    return {
+        kind: SymbolKind.RightBracket,
+        input,
+        parser: output ? 
+            () => html`<mo>${output}</mo>` :
+            () => html``
     }
 }
 
@@ -135,214 +159,458 @@ function underOverParser(base: HtmlTemplate): Parser {
     }
 }
 
+function unaryParser(oper: HtmlTemplate): Parser {
+    return input => {
+        let arg = sexprParser(input)
+        return html`<mrow>${oper}<mo>(</mo>${arg}<mo>)</mo></mrow>`
+    }
+}
+
+function unaryEmbedParser(oper: string): Parser {
+    return input => {
+        let arg = sexprParser(input)
+        return html`<${oper}>${arg}</${oper}>`
+    }
+}
+
+function unarySurroundParser(left: HtmlTemplate, right: HtmlTemplate): Parser {
+    return input => {
+        let arg = sexprParser(input)
+        return html`<mrow>${left}${arg}${right}</mrow>`
+    }
+}
+
 function sexprParser(input: ParserInput): HtmlTemplate {
     return html``
 }
 
-function underOverOper(input: string, oper: string): Symbol {
-    return { kind: SymbolKind.UnderOver, input, 
-        parser: underOverParser(html`<mo>${oper}</mo>`) }
+function underOverOper(input: string, oper = input): Symbol {
+    return { 
+        kind: SymbolKind.UnderOver, 
+        input, 
+        parser: underOverParser(html`<mo>${oper}</mo>`) 
+    }
+}
+
+function unary(input: string, oper = input): Symbol {
+    return { 
+        kind: SymbolKind.Unary, 
+        input, 
+        parser: unaryParser(html`<mo>${oper}</mo>`) 
+    }
+}
+
+function unaryEmbed(input: string, oper: string): Symbol {
+    return { 
+        kind: SymbolKind.Unary, 
+        input, 
+        parser: unaryEmbedParser(oper) 
+    }
+}
+
+function unarySurround(input: string, left: string, right: string): Symbol {
+    return { 
+        kind: SymbolKind.Unary, 
+        input, 
+        parser: unarySurroundParser(html`<mo>${left}</mo>`, 
+            html`<mo>${right}</mo>`) 
+    }
 }
 
 const symbols: SymbolTable = {
     a: [
-        constIdent("alpha", "\u03B1"),
-        textOper("and", "and")
+        unary("arcsin"),
+        unary("arccos"),
+        unary("arctan"),
+        ident("alpha", "\u03B1"),
+        oper("aleph", "\u2135"),
+        unarySurround("abs", "|", "|"),
+        textOper("and", "and"),
+        ident("a")
     ],
     A: [
-        constOper("AA", "\u2200")
+        unary("Arcsin"),
+        unary("Arccos"),
+        unary("Arctan"),
+        unarySurround("Abs", "|", "|"),
+        oper("AA", "\u2200"),
+        ident("A")
     ],
     b: [
-        constIdent("beta", "\u03B2")
+        ident("beta", "\u03B2"),
+        ident("b")
+    ],
+    B: [
+        ident("B")
     ],
     c: [
-        constIdent("chi", "\u03C7")
+        oper("cdots", "\u22EF"),
+        unarySurround("ceil", "\u2308", "\u2309"),
+        unary("cosh"),
+        unary("csch"),
+        unary("cos"),
+        unary("cot"),
+        unary("csc"),
+        ident("chi", "\u03C7"),
+        ident("c")
+    ],
+    C: [
+        unary("Cosh"),
+        unary("Cos"),
+        unary("Cot"),
+        unary("Csc"),
+        oper("CC", "\u2102"),
+        ident("C")
     ],
     d: [
-        constIdent("delta", "\u03B4")
+        oper("diamonds", "\u22C4"),
+        ident("delta", "\u03B4"),
+        oper("ddots", "\u22F1"),
+        oper("del", "\u2202"),
+        unary("det"),
+        textOper("dim"),
+        ident("d")
     ],
     D: [
-        constOper("Delta", "\u0394")
+        oper("Delta", "\u0394"),
+        ident("D")
     ],
     e: [
-        constIdent("epsi", "\u03B5")
+        ident("epsi", "\u03B5"),
+        ident("eta", "\u03B7"),
+        unary("exp"),
+        ident("e")
     ],
     E: [
-        constOper("EE", "\u2203")
+        oper("EE", "\u2203"),
+        ident("E")
     ],
     f: [
-        constIdent("eta", "\u03B7")
+        unarySurround("floor", "\u230A", "\u230B"),
+        oper("frown", "\u2322"),
+        ident("f")
+    ],
+    F: [
+        ident("F")
     ],
     g: [
-        constIdent("gamma", "\u03B3")
+        ident("gamma", "\u03B3"),
+        oper("grad", "\u2207"),
+        unary("gcd"),
+        textOper("glb"),
+        ident("g")
     ],
     G: [
-        constOper("Gamma", "\u0393")
+        oper("Gamma", "\u0393"),
+        ident("G")
     ],
     h: [
-        constIdent("iota", "\u03B9")
+        ident("h")
+    ],
+    H: [
+        ident("H")
     ],
     i: [
-        constOper("in", "\u2208"),
+        ident("iota", "\u03B9"),
+        oper("int", "\u222B"),
+        oper("in", "\u2208"),
         textOper("if", "if")
     ],
+    I: [
+        ident("I")
+    ],
     j: [
+        ident("j")
+    ],
+    J: [
+        ident("J")
     ],
     k: [
-        constIdent("kappa", "\u03BA")
+        ident("kappa", "\u03BA"),
+        ident("k")
+    ],
+    K: [
+        ident("K")
     ],
     l: [
-        constIdent("lambda", "\u03BB")
+        ident("lambda", "\u03BB"),
+        underOverOper("lim", "lim"),
+        unary("log"),
+        unary("lcm"),
+        textOper("lub"),
+        unary("ln"),
+        ident("l")
     ],
     L: [
-        constOper("Lambda", "\u039B")
+        oper("Lambda", "\u039B"),
+        underOverOper("Lim", "Lim"),
+        unary("Log"),
+        unary("Ln"),
+        ident("L")
     ],
     m: [
-        constIdent("mu", "\u03BC")
+        underOverOper("min"),
+        underOverOper("max"),
+        textOper("mod"),
+        ident("mu", "\u03BC"),
+        ident("m")
+    ],
+    M: [
+        ident("M")
     ],
     n: [
+        unarySurround("norm", "\u2225", "\u2225"),
         underOverOper("nnn", "\u22C2"),
-        constOper("not", "\u00AC"),
-        constOper("nn", "\u2229"),
-        constIdent("nu", "\u03BD")
+        oper("not", "\u00AC"),
+        oper("nn", "\u2229"),
+        ident("nu", "\u03BD"),
+        ident("n")
+    ],
+    N: [
+        oper("NN", "\u2115"),
+        ident("N")
     ],
     o: [
-        constIdent("omega", "\u03C9"),
+        ident("omega", "\u03C9"),
+        oper("oint", "\u222E"),
         textOper("or", "or"),
-        constOper("o+", "\u2295"),
-        constOper("ox", "\u2295"),
-        constOper("o.", "\u2299"),
+        oper("o+", "\u2295"),
+        oper("ox", "\u2295"),
+        oper("o.", "\u2299"),
+        oper("oo", "\u221E"),
+        ident("o")
     ],
     O: [
-        constOper("Omega", "\u03A9")
+        oper("Omega", "\u03A9"),
+        oper("O/", "\u2205"),
+        ident("O")
     ],
     p: [
         underOverOper("prod", "\u220F"),
-        constIdent("prop", "\u221D"),
-        constIdent("phi", "\u03D5"),
-        constIdent("psi", "\u03C8"),
-        constIdent("pi", "\u03C0"),
+        ident("prop", "\u221D"),
+        ident("phi", "\u03D5"),
+        ident("psi", "\u03C8"),
+        ident("pi", "\u03C0"),
+        ident("p")
     ],
     P: [
-        constOper("Phi", "\u03A6"),
-        constIdent("Psi", "\u03A8"),
-        constOper("Pi", "\u03A0"),
+        oper("Phi", "\u03A6"),
+        ident("Psi", "\u03A8"),
+        oper("Pi", "\u03A0"),
+        ident("P")
     ],
     q: [
+        oper("qquad", "\u00A0\u00A0\u00A0\u00A0"),
+        oper("quad", "\u00A0\u00A0"),
+        ident("q")
+    ],
+    Q: [
+        oper("QQ", "\u211A"),
+        ident("Q")
     ],
     r: [
-        constIdent("rho", "\u03C1")
+        ident("rho", "\u03C1"),
+        ident("r")
+    ],
+    R: [
+        oper("RR", "\u211D"),
+        ident("R")
     ],
     s: [
-        constOper("setminus", "\\"),
-        constIdent("sigma", "\u03C3"),
+        oper("setminus", "\\"),
+        oper("square", "\u25A1"),
+        ident("sigma", "\u03C3"),
         underOverOper("sube", "\u2286"),
         underOverOper("supe", "\u2287"),
+        unaryEmbed("sqrt", "msqrt"),
+        unary("sinh"),
+        unary("sech"),
         underOverOper("sum", "\u2211"),
         underOverOper("sub", "\u2282"),
         underOverOper("sup", "\u2283"),
+        unary("sin"),
+        unary("sec"),
+        ident("s")
     ],
     S: [
-        constOper("Sigma", "\u03A3"),
+        oper("Sigma", "\u03A3"),
+        unary("Sinh"),
+        unary("Sin"),
+        unary("Sec"),
+        ident("S")
     ],
     t: [
-        constIdent("theta", "\u03B8"),
-        constIdent("tau", "\u03C4"),
+        ident("theta", "\u03B8"),
+        unary("tanh"),
+        unary("tan"),
+        ident("tau", "\u03C4"),
+        ident("t")
     ],
     T: [
-        constOper("Theta", "\u0398"),
-        constOper("TT", "\u22A4")
+        oper("Theta", "\u0398"),
+        unary("Tanh"),
+        unary("Tan"),
+        oper("TT", "\u22A4"),
+        ident("T")
     ],
     u: [
-        constIdent("upsilon", "\u03C5"),
+        ident("upsilon", "\u03C5"),
         underOverOper("uuu", "\u22C3"),
-        constOper("uu", "\u222A"),
+        oper("uu", "\u222A"),
+        ident("u")
+    ],
+    U: [
+        ident("U")
     ],
     v: [
-        constIdent("varepsilon", "\u025B"),
-        constIdent("vartheta", "\u03D1"),
-        constIdent("varphi", "\u03C6"),
+        ident("varepsilon", "\u025B"),
+        ident("vartheta", "\u03D1"),
+        ident("varphi", "\u03C6"),
+        oper("vdots", "\u22EE"),
         underOverOper("vvv", "\u22C1"),
-        constOper("vv", "\u2228"),
+        oper("vv", "\u2228"),
+        ident("v")
+    ],
+    V: [
+        ident("V")
     ],
     w: [
-        constIdent("", "")
+        ident("w")
+    ],
+    W: [
+        ident("W")
     ],
     x: [
-        constIdent("xi", "\u03BE"),
-        constOper("xx", "\u00D7"),
+        ident("xi", "\u03BE"),
+        oper("xx", "\u00D7"),
+        ident("x")
     ],
     X: [
-        constIdent("Xi", "\u039E")
+        ident("Xi", "\u039E"),
+        ident("X")
     ],
     y: [
-        constIdent("", "")
+        ident("y")
+    ],
+    Y: [
+        ident("Y")
     ],
     z: [
-        constIdent("zeta", "\u03B6")
+        ident("zeta", "\u03B6"),
+        ident("z")
+    ],
+    Z: [
+        oper("ZZ", "\u2124"),
+        ident("Z")
     ],
     "-": [
-        constOper("-<=", "\u2AAF"),
-        constOper("-<", "\u227A"),
-        constOper("-:", "\u00F7"),
-        constOper("-=", "\u2261"),
-        constOper("~=", "\u2245"),
-        constOper("-", "\u0096"),
+        oper("__|", "\u230B"),
+        oper("-<=", "\u2AAF"),
+        oper("-<", "\u227A"),
+        oper("-:", "\u00F7"),
+        oper("-=", "\u2261"),
+        oper("-+", "\u2213"),
+        oper("-", "\u0096"),
     ],
     "*": [
-        constOper("***", "\u22C6"),
-        constOper("**", "\u2217"),
-        constOper("*", "\u22C5"),
+        oper("***", "\u22C6"),
+        oper("**", "\u2217"),
+        oper("*", "\u22C5"),
+    ],
+    "+": [
+        oper("+-", "\u00B1"),
+        oper("+", "+")
     ],
     "/": [
-        constOper("//", "/"),
+        oper("/_\\", "\u25B3"),
+        oper("/_", "\u2220"),
+        oper("//", "/"),
     ],
     "\\": [
-        constOper("\\\\", "\\"),
+        oper("\\\\", "\\"),
+        oper("\\", "\u00A0")
     ],
     "|": [
-        constOper("|><|", "\u22C8"),
-        constOper("|><", "\u22C9"),
-        constOper("|--", "\u22A2"),
-        constOper("|==", "\u22A8")
+        oper("|><|", "\u22C8"),
+        oper("|><", "\u22C9"),
+        oper("|--", "\u22A2"),
+        oper("|==", "\u22A8"),
+        oper("|__", "\u230A"),
+        oper("|~", "\u2308"),
+        leftBracket("|:", "|")
     ],
     "<": [
-        constOper("<=>", "\u21D4"),
-        constOper("<=", "\u2264"),
-        constOper("<<", "\u226A"),
-        constOper("<", "<"),
+        oper("<=>", "\u21D4"),
+        oper("<=", "\u2264"),
+        oper("<<", "\u226A"),
+        oper("<", "<"),
     ],
     ">": [
-        constOper("><|", "\u22CA"),
-        constOper(">-=", "\u2AB0"),
-        constOper(">=", "\u2265"),
-        constOper(">-", "\u227B"),
-        constOper(">>", "\u226B"),
-        constOper(">", ">"),
+        oper("><|", "\u22CA"),
+        oper(">-=", "\u2AB0"),
+        oper(">=", "\u2265"),
+        oper(">-", "\u227B"),
+        oper(">>", "\u226B"),
+        oper(">", ">"),
     ],
     "=": [
-        constOper("=>", "\u21D2"),
-        constOper("=", "="),
+        oper("=>", "\u21D2"),
+        oper("=", "="),
     ],
     "@": [
-        constOper("@", "\u2218"),
+        oper("@", "\u2218"),
     ],
     "^": [
         underOverOper("^^^", "\u22C0"),
-        constOper("^^", "\u2227"),
+        oper("^^", "\u2227"),
     ],
     "~": [
-        constOper("~~", "\u2248"),
-        constOper("~", "\u223C"),
+        oper("~~", "\u2248"),
+        oper("~=", "\u2245"),
+        oper("~|", "\u2309"),
+        oper("~", "\u223C"),
     ],
     "!": [
-        constOper("!in", "\u2209"),
-        constOper("!=", "\u2260"),
+        oper("!in", "\u2209"),
+        oper("!=", "\u2260"),
+        oper("!", "!")
     ],
     ":": [
-        constOper(":=", ":="),
+        oper(":=", ":="),
+        rightBracket(":)", "\u232A"),
+        rightBracket(":|", "|"),
+        rightBracket(":}", "}"),
+        oper(":.", "\u2234"),
+        oper(":'", "\u2235"),
+        oper(":", ":")
+    ],
+    ".": [
+        oper("...", "..."),
     ],
     "_": [
-        constOper("_|_", "\u22A5")
-    ]
+        oper("_|_", "\u22A5")
+    ],
+    "'": [
+        oper("'", "\u2032")
+    ],
+    "(": [
+        leftBracket("(:", "\u2329"),
+        leftBracket("(", "(")
+    ],
+    ")": [
+        rightBracket(")", ")")
+    ],
+    "[": [
+        leftBracket("[", "[")
+    ],
+    "]": [
+        rightBracket("]", "]")
+    ],
+    "{": [
+        leftBracket("{:", "{"),
+        leftBracket("{")
+    ],
+    "}": [
+        rightBracket("}")
+    ],
 }
