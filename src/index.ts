@@ -676,7 +676,7 @@ const symbols: SymbolTable = {
         oper("-:", "\u00F7"),
         oper("-=", "\u2261"),
         oper("-+", "\u2213"),
-        oper("-", "\u0096"),
+        oper("-", "\u2212"),
     ],
     "*": [
         oper("***", "\u22C6"),
@@ -787,8 +787,9 @@ const symbols: SymbolTable = {
     ]
 }
 
-export function asciiToMathML(text: string): string {
+export function asciiToMathML(text: string, inline = false): string {
     let input = new ParserInput(text, symbols)
-    let temp = html`<math><mrow>${exprParser(input)}</mrow></math>`
+    let temp = html`<math display="${inline ? 'inline' : 'block'
+        }"><mstyle displaystyle="true">${exprParser(input)}</mstyle></math>`
     return htmlTemplateToString(temp)
 }
