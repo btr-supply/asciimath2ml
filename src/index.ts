@@ -5,11 +5,6 @@
  * translate it to [MathML](https://developer.mozilla.org/en-US/docs/Web/MathML)
  * string for showing equations in browser.
  * 
- * We use the `HtmlTemplate` template literal builder to construct the resulted
- * HTML. This comes from helper module.
- */
-import { html, HtmlTemplate, htmlTemplateToString } from './html'
-/**
  * ## Parser Input
  * 
  * We encapsulate the input string into `ParserInput` class. It stores the
@@ -81,7 +76,7 @@ class ParserInput {
     }
 }
 
-type Parser = (input: ParserInput) => HtmlTemplate
+type Parser = (input: ParserInput) => string
 
 enum SymbolKind {
     Const,
@@ -106,7 +101,7 @@ function text(input: string): Symbol {
     return {
         kind: SymbolKind.Const,
         input,
-        parser: () => html`<mtext>${input}</mtext>`
+        parser: () => /*html*/`<mtext>${input}</mtext>`
     }
 }
 
@@ -114,7 +109,7 @@ function number(input: string): Symbol {
     return {
         kind: SymbolKind.Const,
         input,
-        parser: () => html`<mn>${input}</mn>`
+        parser: () => /*html*/`<mn>${input}</mn>`
     }
 }
 
@@ -122,7 +117,7 @@ function error(msg: string): Symbol {
     return { 
         kind: SymbolKind.Error, 
         input: "", 
-        parser: () => html`<merror><mtext>${msg}</mtext></merror>` 
+        parser: () => /*html*/`<merror><mtext>${msg}</mtext></merror>` 
     }
 }
 
@@ -130,7 +125,7 @@ function eof(): Symbol {
     return { 
         kind: SymbolKind.Eof, 
         input: "", 
-        parser: () => html``
+        parser: () => ""
     }
 }
 
@@ -138,7 +133,7 @@ function ident(input: string, output = input): Symbol {
     return { 
         kind: SymbolKind.Const, 
         input, 
-        parser: () => html`<mi>${output}</mi>` 
+        parser: () => /*html*/`<mi>${output}</mi>` 
     }
 }
 
@@ -146,7 +141,7 @@ function oper(input: string, output: string): Symbol {
     return { 
         kind: SymbolKind.Const, 
         input, 
-        parser: () => html`<mo>${output}</mo>` 
+        parser: () => /*html*/`<mo>${output}</mo>` 
     }
 }
 
@@ -154,7 +149,7 @@ function textOper(input: string, output = input): Symbol {
     return { 
         kind: SymbolKind.Const, 
         input, 
-        parser: () => html`<mrow><mspace width="1ex"/><mtext>${output            
+        parser: () => /*html*/`<mrow><mspace width="1ex"/><mtext>${output            
             }</mtext><mspace width="1ex"/></mrow>` 
     }
 }
@@ -164,8 +159,8 @@ function leftBracket(input: string, output?: string): Symbol {
         kind: SymbolKind.LeftBracket,
         input,
         parser: output ? 
-            () => html`<mo>${output}</mo>` :
-            () => html``
+            () => /*html*/`<mo>${output}</mo>` :
+            () => ""
     }
 }
 
@@ -174,43 +169,43 @@ function rightBracket(input: string, output?: string): Symbol {
         kind: SymbolKind.RightBracket,
         input,
         parser: output ? 
-            () => html`<mo>${output}</mo>` :
-            () => html``
+            () => /*html*/`<mo>${output}</mo>` :
+            () => ""
     }
 }
 
-function unaryParser(oper: HtmlTemplate): Parser {
+function unaryParser(oper: string): Parser {
     return input => {
         let arg = sexprParser(input)
-        return html`<mrow>${oper}${arg}</mrow>`
+        return /*html*/`<mrow>${oper}${arg}</mrow>`
     }
 }
 
 function unaryEmbedParser(tag: string): Parser {
     return input => {
         let arg = sexprParser(input)
-        return html`<${tag}>${arg}</${tag}>`
+        return /*html*/`<${tag}>${arg}</${tag}>`
     }
 }
 
-function unaryEmbedWithParser(tag: string, arg2: HtmlTemplate): Parser {
+function unaryEmbedWithParser(tag: string, arg2: string): Parser {
     return input => {
         let arg1 = sexprParser(input)
-        return html`<${tag}>${arg1}{$arg2}</${tag}>`
+        return /*html*/`<${tag}>${arg1}{$arg2}</${tag}>`
     }
 }
 
-function unarySurroundParser(left: HtmlTemplate, right: HtmlTemplate): Parser {
+function unarySurroundParser(left: string, right: string): Parser {
     return input => {
         let arg = sexprParser(input)
-        return html`<mrow>${left}${arg}${right}</mrow>`
+        return /*html*/`<mrow>${left}${arg}${right}</mrow>`
     }
 }
 
 function unaryAttrParser(tag: string, attr: string): Parser {
     return input => {
         let arg = sexprParser(input)
-        return html`<${tag} ${attr}">${arg}</${tag}>`
+        return /*html*/`<${tag} ${attr}">${arg}</${tag}>`
     }
 }
 
@@ -218,7 +213,7 @@ function binaryEmbedParser(tag: string): Parser {
     return input => {
         let arg1 = sexprParser(input)
         let arg2 = sexprParser(input)
-        return html`<${tag}>${arg1}${arg2}</${tag}>`
+        return /*html*/`<${tag}>${arg1}${arg2}</${tag}>`
     }
 }
 
@@ -226,11 +221,11 @@ function binaryAttrParser(tag: string, attr: string): Parser {
     return input => {
         let arg1 = sexprParser(input)
         let arg2 = sexprParser(input)
-        return html`<${tag} ${attr}="${arg1}">${arg2}</${tag}>`
+        return /*html*/`<${tag} ${attr}="${arg1}">${arg2}</${tag}>`
     }
 }
 
-function parseSExpr(input: ParserInput): [HtmlTemplate, Symbol] {
+function parseSExpr(input: ParserInput): [string, Symbol] {
     let sym = input.nextSymbol()
     if (sym.kind == SymbolKind.LeftBracket) {
         let lbrac = sym.parser(input)
@@ -238,19 +233,19 @@ function parseSExpr(input: ParserInput): [HtmlTemplate, Symbol] {
         let sym2 = input.nextSymbol()
         let rbrac = sym2.kind == SymbolKind.RightBracket ?
             sym2.parser(input) : error("Missing closing paren")
-        return [html`<mrow>${lbrac}${exp}${rbrac}</mrow>`, sym]
+        return [/*html*/`<mrow>${lbrac}${exp}${rbrac}</mrow>`, sym]
     }
     return [sym.parser(input), sym]
 }
 
-function sexprParser(input: ParserInput): HtmlTemplate {
+function sexprParser(input: ParserInput): string {
     return parseSExpr(input)[0]
 }
 
-function iexprParser(input: ParserInput): HtmlTemplate {
+function iexprParser(input: ParserInput): string {
     let [res, sym] = parseSExpr(input)
-    let sub: HtmlTemplate | undefined
-    let sup: HtmlTemplate | undefined
+    let sub: string | undefined
+    let sup: string | undefined
     let [next, pos] = input.peekSymbol()
     if (next.input == "_") {
         input.pos = pos
@@ -262,19 +257,19 @@ function iexprParser(input: ParserInput): HtmlTemplate {
         sup = sexprParser(input)
     }
     if (sym.kind == SymbolKind.UnderOver)
-        return sub && sup ? html`<munderover>${res}${sub}${sup}</munderover>` :
-            sub ? html`<munder>${res}${sub}</munder>` :
-            sup ? html`<mover>${res}${sup}</mover>` :
+        return sub && sup ? /*html*/`<munderover>${res}${sub}${sup}</munderover>` :
+            sub ? /*html*/`<munder>${res}${sub}</munder>` :
+            sup ? /*html*/`<mover>${res}${sup}</mover>` :
             res
     else
-        return sub && sup ? html`<msubsup>${res}${sub}${sup}</msubsup>` :
-            sub ? html`<msub>${res}${sub}</msub>` :
-            sup ? html`<msup>${res}${sup}</msup>` :
+        return sub && sup ? /*html*/`<msubsup>${res}${sub}${sup}</msubsup>` :
+            sub ? /*html*/`<msub>${res}${sub}</msub>` :
+            sup ? /*html*/`<msup>${res}${sup}</msup>` :
             res
 }
 
 
-function exprParser(input: ParserInput): HtmlTemplate {
+function exprParser(input: ParserInput): string {
     let res = iexprParser(input)
     let [next, pos] = input.peekSymbol()
     if (next.kind == SymbolKind.Eof || next.kind == SymbolKind.RightBracket)
@@ -282,16 +277,19 @@ function exprParser(input: ParserInput): HtmlTemplate {
     if (next.input == "/") {
         input.pos = pos
         let quot = iexprParser(input)
-        res = html`<mfrac>${res}${quot}</mfrac>`
+        res = /*html*/`<mfrac>${res}${quot}</mfrac>`;
+        [next, ] = input.peekSymbol()
+        if (next.kind == SymbolKind.Eof || next.kind == SymbolKind.RightBracket)
+            return res
     }
-    return html`${res}${exprParser(input)}`
+    return /*html*/`${res}${exprParser(input)}`
 }
 
 function underOverOper(input: string, oper = input): Symbol {
     return { 
         kind: SymbolKind.UnderOver, 
         input, 
-        parser: () => html`<mo>${oper}</mo>`
+        parser: () => /*html*/`<mo>${oper}</mo>`
     }
 }
 
@@ -299,7 +297,7 @@ function unary(input: string, oper = input): Symbol {
     return { 
         kind: SymbolKind.Unary, 
         input, 
-        parser: unaryParser(html`<mo>${oper}</mo>`) 
+        parser: unaryParser(/*html*/`<mo>${oper}</mo>`) 
     }
 }
 
@@ -315,7 +313,7 @@ function unaryEmbedWith(input: string, tag: string, arg2: string): Symbol {
     return { 
         kind: SymbolKind.Unary, 
         input, 
-        parser: unaryEmbedWithParser(tag, html`<mo>${arg2}</mo>`) 
+        parser: unaryEmbedWithParser(tag, /*html*/`<mo>${arg2}</mo>`) 
     }
 }
 
@@ -323,8 +321,8 @@ function unarySurround(input: string, left: string, right: string): Symbol {
     return { 
         kind: SymbolKind.Unary, 
         input, 
-        parser: unarySurroundParser(html`<mo>${left}</mo>`, 
-            html`<mo>${right}</mo>`) 
+        parser: unarySurroundParser(/*html*/`<mo>${left}</mo>`, 
+            /*html*/`<mo>${right}</mo>`) 
     }
 }
 
@@ -789,7 +787,6 @@ const symbols: SymbolTable = {
 
 export function asciiToMathML(text: string, inline = false): string {
     let input = new ParserInput(text, symbols)
-    let temp = html`<math display="${inline ? 'inline' : 'block'
+    return /*html*/`<math display="${inline ? 'inline' : 'block'
         }"><mstyle displaystyle="true">${exprParser(input)}</mstyle></math>`
-    return htmlTemplateToString(temp)
 }

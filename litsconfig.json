@@ -5,7 +5,8 @@
     ],
     "exclude": [
         ".git",
-        "node_modules",
+        "node_modules/",
+        "../litscript/**",
         "lib"
     ],
     "deployMode": "dev",
