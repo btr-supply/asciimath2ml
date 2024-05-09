@@ -191,7 +191,7 @@ function unaryEmbedParser(tag: string): Parser {
 function unaryEmbedWithParser(tag: string, arg2: string): Parser {
     return input => {
         let arg1 = sexprParser(input)
-        return /*html*/`<${tag}>${arg1}{$arg2}</${tag}>`
+        return /*html*/`<${tag}>${arg1}${arg2}</${tag}>`
     }
 }
 
@@ -309,9 +309,9 @@ function unaryEmbed(input: string, tag: string): Symbol {
     }
 }
 
-function unaryEmbedWith(input: string, tag: string, arg2: string): Symbol {
+function unaryUnderOver(input: string, tag: string, arg2: string): Symbol {
     return { 
-        kind: SymbolKind.Unary, 
+        kind: SymbolKind.UnderOver, 
         input, 
         parser: unaryEmbedWithParser(tag, /*html*/`<mo>${arg2}</mo>`) 
     }
@@ -371,7 +371,7 @@ const symbols: SymbolTable = {
     ],
     b: [
         ident("beta", "\u03B2"),
-        unaryEmbedWith("bar", "mover", "\u00AF"),
+        unaryUnderOver("bar", "mover", "\u00AF"),
         ident("b")
     ],
     B: [
@@ -403,11 +403,11 @@ const symbols: SymbolTable = {
         oper("diamonds", "\u22C4"),
         ident("delta", "\u03B4"),
         oper("ddots", "\u22F1"),
-        unaryEmbedWith("ddot", "mover", ".."),
+        unaryUnderOver("ddot", "mover", ".."),
         oper("darr", "\u2193"),
         oper("del", "\u2202"),
         unary("det"),
-        unaryEmbedWith("dot", "mover", "."),
+        unaryUnderOver("dot", "mover", "."),
         textOper("dim"),
         ident("d")
     ],
@@ -448,7 +448,7 @@ const symbols: SymbolTable = {
     h: [
         oper("harr", "\u2194"),
         oper("hArr", "\u21D4"),
-        unaryEmbedWith("hat", "mover", "\u005E"),
+        unaryUnderOver("hat", "mover", "\u005E"),
         ident("h")
     ],
     H: [
@@ -519,9 +519,9 @@ const symbols: SymbolTable = {
         ident("N")
     ],
     o: [
-        unaryEmbedWith("overarc", "mover", "\u23DC"),
+        unaryUnderOver("overarc", "mover", "\u23DC"),
         binaryEmbed("overset", "mover"),
-        unaryEmbedWith("obrace", "mover", "\u23DE"),
+        unaryUnderOver("obrace", "mover", "\u23DE"),
         ident("omega", "\u03C9"),
         oper("oint", "\u222E"),
         textOper("or", "or"),
@@ -596,7 +596,7 @@ const symbols: SymbolTable = {
     ],
     t: [
         ident("theta", "\u03B8"),
-        unaryEmbedWith("tilde", "mover", "~"),
+        unaryUnderOver("tilde", "mover", "~"),
         unaryEmbed("text", "mtext"),
         unary("tanh"),
         unary("tan"),
@@ -613,11 +613,11 @@ const symbols: SymbolTable = {
     u: [
         binaryEmbed("underset", "munder"),
         ident("upsilon", "\u03C5"),
-        unaryEmbedWith("ubrace", "munder", "\u23DF"),
+        unaryUnderOver("ubrace", "munder", "\u23DF"),
         oper("uarr", "\u2191"),
         underOverOper("uuu", "\u22C3"),
         oper("uu", "\u222A"),
-        unaryEmbedWith("ul", "munder", "\u0332"),
+        unaryUnderOver("ul", "munder", "\u0332"),
         ident("u")
     ],
     U: [
@@ -628,7 +628,7 @@ const symbols: SymbolTable = {
         ident("vartheta", "\u03D1"),
         ident("varphi", "\u03C6"),
         oper("vdots", "\u22EE"),
-        unaryEmbedWith("vec", "mover", "\u2192"),
+        unaryUnderOver("vec", "mover", "\u2192"),
         underOverOper("vvv", "\u22C1"),
         oper("vv", "\u2228"),
         ident("v")
