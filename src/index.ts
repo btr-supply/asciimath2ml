@@ -40,30 +40,50 @@ class ParserInput {
         return this.pos < this.text.length ? this.pos : -1
     }
     
-    nextSymbol(): Symbol {
+    peekSymbol(): [Symbol, number] {
         let pos = this.skipWhitespace()
         if (pos < 0)
-            return error("Input exhausted")
+            return [error("Input exhausted"), pos]
         let curr = this.text[pos]
+        /**
+         * Check if input is a text `"..."` string.
+         */
+        if (curr == '"') {
+            while (pos < this.text.length && this.text[pos] != '"')
+                ++pos
+            return [text(this.text.slice(this.pos + 1, pos)), pos + 1]
+        }
+        /**
+         * Check if input is a number.
+         */
+        if (/\d/.test(curr)) {
+            while (pos < this.text.length && /[\d\.,]/.test(this.text[pos]))
+                ++pos
+            return [number(this.text.slice(this.pos + 1, pos)), pos]
+        }
+        /**
+         * Find the correct symbol from the table.
+         */
         let syms = this.symbols[curr]
         let i = 0
         while (i < syms.length) {
             let sym = syms[i]
             let len = syms[i].input.length
-            if (this.text.slice(pos, pos + len) == sym.input) {
-                this.pos += len
-                return sym
-            }
+            if (this.text.slice(pos, pos + len) == sym.input)
+                return [sym, pos + len]
         }
-        return error("Invalid symbol")
+        return [error("Invalid symbol"), pos]
     }
     
-    peekChar(): string {
-        return this.text[this.pos] || ""
+    skipTo(pos: number) {
+        this.pos += pos
     }
 
-    skipChar() {
-        this.pos++
+    nextSymbol(): Symbol {
+        let [sym, pos] = this.peekSymbol()
+        if (pos < this.text.length)
+            this.skipTo(pos)
+        return sym
     }
 }
 
@@ -75,7 +95,8 @@ enum SymbolKind {
     LeftBracket,
     RightBracket,
     Unary,
-    Binary
+    Binary,
+    Error
 }
 
 interface Symbol {
@@ -86,9 +107,25 @@ interface Symbol {
 
 type SymbolTable = { [firstLetter: string]: Symbol[] }
 
+function text(input: string): Symbol {
+    return {
+        kind: SymbolKind.Const,
+        input,
+        parser: () => html`<mtext>${input}</mtext>`
+    }
+}
+
+function number(input: string): Symbol {
+    return {
+        kind: SymbolKind.Const,
+        input,
+        parser: () => html`<mn>${input}</mn>`
+    }
+}
+
 function error(msg: string): Symbol {
     return { 
-        kind: SymbolKind.Const, 
+        kind: SymbolKind.Error, 
         input: "", 
         parser: () => html`<merror><mtext>${msg}</mtext></merror>` 
     }
@@ -139,26 +176,6 @@ function rightBracket(input: string, output?: string): Symbol {
     }
 }
 
-function underOverParser(base: HtmlTemplate): Parser {
-    return input => {
-        let under: HtmlTemplate | undefined
-        let over: HtmlTemplate | undefined
-        if (input.peekChar() == "_") {
-            input.skipChar()
-            under = sexprParser(input)
-        }
-        if (input.peekChar() == "^") {
-            input.skipChar()
-            over = sexprParser(input)
-        }
-        return under && over ?
-                html`<munderover>${base}${under}${over}</munderover>` :
-            under ? html`<munder>${base}${under}</munder>` :
-            over ? html`<munder>${base}${over}</munder>` :
-            base
-    }
-}
-
 function unaryParser(oper: HtmlTemplate): Parser {
     return input => {
         let arg = sexprParser(input)
@@ -174,18 +191,25 @@ function binaryParser(oper: HtmlTemplate): Parser {
     }
 }
 
-function unaryEmbedParser(oper: string): Parser {
+function unaryEmbedParser(tag: string): Parser {
     return input => {
         let arg = sexprParser(input)
-        return html`<${oper}>${arg}</${oper}>`
+        return html`<${tag}>${arg}</${tag}>`
     }
 }
 
-function binaryEmbedParser(oper: string, argParser: Parser): Parser {
+function unaryEmbedWithParser(tag: string, arg2: HtmlTemplate): Parser {
     return input => {
-        let arg1 = argParser(input)
-        let arg2 = argParser(input)
-        return html`<${oper}>${arg1}${arg2}</${oper}>`
+        let arg1 = sexprParser(input)
+        return html`<${tag}>${arg1}{$arg2}</${tag}>`
+    }
+}
+
+function binaryEmbedParser(tag: string): Parser {
+    return input => {
+        let arg1 = sexprParser(input)
+        let arg2 = sexprParser(input)
+        return html`<${tag}>${arg1}${arg2}</${tag}>`
     }
 }
 
@@ -217,12 +241,14 @@ function iexprParser(input: ParserInput): HtmlTemplate {
     let [res, sym] = parseSExpr(input)
     let sub: HtmlTemplate | undefined
     let sup: HtmlTemplate | undefined
-    if (input.peekChar() == "_") {
-        input.skipChar()
-        sub = sexprParser(input)
+    let [next, pos] = input.peekSymbol()
+    if (next.input == "_") {
+        input.skipTo(pos)
+        sub = sexprParser(input);
+        [next, pos] = input.peekSymbol()
     }
-    if (input.peekChar() == "^") {
-        input.skipChar()
+    if (next.input == "^") {
+        input.skipTo(pos)
         sup = sexprParser(input)
     }
     if (sym.kind == SymbolKind.UnderOver)
@@ -238,14 +264,23 @@ function iexprParser(input: ParserInput): HtmlTemplate {
 }
 
 function exprParser(input: ParserInput): HtmlTemplate {
-    return html``
+    let res = iexprParser(input)
+    let [next, pos] = input.peekSymbol()
+    if (next.kind == SymbolKind.Error)
+        return res
+    if (next.input == "/") {
+        input.skipTo(pos)
+        let quot = iexprParser(input)
+        return html`<mfrac>${res}${quot}</mfrac>`
+    }
+    return exprParser(input)
 }
 
 function underOverOper(input: string, oper = input): Symbol {
     return { 
         kind: SymbolKind.UnderOver, 
         input, 
-        parser: underOverParser(html`<mo>${oper}</mo>`) 
+        parser: () => html`<mo>${oper}</mo>`
     }
 }
 
@@ -265,19 +300,27 @@ function binary(input: string, oper = input): Symbol {
     }
 }
 
-function unaryEmbed(input: string, oper: string): Symbol {
+function unaryEmbed(input: string, tag: string): Symbol {
     return { 
         kind: SymbolKind.Unary, 
         input, 
-        parser: unaryEmbedParser(oper) 
+        parser: unaryEmbedParser(tag)
     }
 }
 
-function binaryEmbed(input: string, oper: string, argParser: Parser): Symbol {
+function unaryEmbedWith(input: string, tag: string, arg2: string): Symbol {
+    return { 
+        kind: SymbolKind.Unary, 
+        input, 
+        parser: unaryEmbedWithParser(tag, html`<mo>${arg2}</mo>`) 
+    }
+}
+
+function binaryEmbed(input: string, tag: string): Symbol {
     return { 
         kind: SymbolKind.Binary, 
         input, 
-        parser: binaryEmbedParser(oper, argParser)
+        parser: binaryEmbedParser(tag)
     }
 }
 
@@ -311,6 +354,7 @@ const symbols: SymbolTable = {
     ],
     b: [
         ident("beta", "\u03B2"),
+        unaryEmbedWith("bar", "mover", "\u00AF"),
         ident("b")
     ],
     B: [
@@ -339,9 +383,11 @@ const symbols: SymbolTable = {
         oper("diamonds", "\u22C4"),
         ident("delta", "\u03B4"),
         oper("ddots", "\u22F1"),
+        unaryEmbedWith("ddot", "mover", ".."),
         oper("darr", "\u2193"),
         oper("del", "\u2202"),
         unary("det"),
+        unaryEmbedWith("dot", "mover", "."),
         textOper("dim"),
         ident("d")
     ],
@@ -362,7 +408,7 @@ const symbols: SymbolTable = {
     f: [
         unarySurround("floor", "\u230A", "\u230B"),
         oper("frown", "\u2322"),
-        binaryEmbed("frac", "mfrac", sexprParser),
+        binaryEmbed("frac", "mfrac"),
         ident("f")
     ],
     F: [
@@ -382,6 +428,7 @@ const symbols: SymbolTable = {
     h: [
         oper("harr", "\u2194"),
         oper("hArr", "\u21D4"),
+        unaryEmbedWith("hat", "mover", "\u005E"),
         ident("h")
     ],
     H: [
@@ -450,6 +497,9 @@ const symbols: SymbolTable = {
         ident("N")
     ],
     o: [
+        unaryEmbedWith("overarc", "mover", "\u23DC"),
+        binaryEmbed("overset", "mover"),
+        unaryEmbedWith("obrace", "mover", "\u23DE"),
         ident("omega", "\u03C9"),
         oper("oint", "\u222E"),
         textOper("or", "or"),
@@ -490,7 +540,7 @@ const symbols: SymbolTable = {
     r: [
         oper("rarr", "\u2192"),
         oper("rArr", "\u21D2"),
-        binaryEmbed("root", "mroot", sexprParser),
+        binaryEmbed("root", "mroot"),
         ident("rho", "\u03C1"),
         ident("r")
     ],
@@ -499,6 +549,7 @@ const symbols: SymbolTable = {
         ident("R")
     ],
     s: [
+        binaryEmbed("stackrel", "mover"),
         oper("setminus", "\\"),
         oper("square", "\u25A1"),
         ident("sigma", "\u03C3"),
@@ -523,6 +574,8 @@ const symbols: SymbolTable = {
     ],
     t: [
         ident("theta", "\u03B8"),
+        unaryEmbedWith("tilde", "mover", "~"),
+        unaryEmbed("text", "mtext"),
         unary("tanh"),
         unary("tan"),
         ident("tau", "\u03C4"),
@@ -536,10 +589,13 @@ const symbols: SymbolTable = {
         ident("T")
     ],
     u: [
+        binaryEmbed("underset", "munder"),
         ident("upsilon", "\u03C5"),
+        unaryEmbedWith("ubrace", "munder", "\u23DF"),
         oper("uarr", "\u2191"),
         underOverOper("uuu", "\u22C3"),
         oper("uu", "\u222A"),
+        unaryEmbedWith("ul", "munder", "\u0332"),
         ident("u")
     ],
     U: [
@@ -550,6 +606,7 @@ const symbols: SymbolTable = {
         ident("vartheta", "\u03D1"),
         ident("varphi", "\u03C6"),
         oper("vdots", "\u22EE"),
+        unaryEmbedWith("vec", "mover", "\u2192"),
         underOverOper("vvv", "\u22C1"),
         oper("vv", "\u2228"),
         ident("v")
@@ -610,6 +667,7 @@ const symbols: SymbolTable = {
         oper("/_\\", "\u25B3"),
         oper("/_", "\u2220"),
         oper("//", "/"),
+        oper("/", "")
     ],
     "\\": [
         oper("\\\\", "\\"),
@@ -651,6 +709,7 @@ const symbols: SymbolTable = {
     "^": [
         underOverOper("^^^", "\u22C0"),
         oper("^^", "\u2227"),
+        oper("^", "")
     ],
     "~": [
         oper("~~", "\u2248"),
@@ -676,7 +735,8 @@ const symbols: SymbolTable = {
         oper("...", "..."),
     ],
     "_": [
-        oper("_|_", "\u22A5")
+        oper("_|_", "\u22A5"),
+        oper("_", "")
     ],
     "'": [
         oper("'", "\u2032")
@@ -700,5 +760,5 @@ const symbols: SymbolTable = {
     ],
     "}": [
         rightBracket("}")
-    ],
+    ]
 }
