@@ -6,8 +6,7 @@
     "exclude": [
         ".git",
         "node_modules",
-        "lib",
-        "README.md"
+        "lib"
     ],
     "deployMode": "dev",
     "frontMatter": {
@@ -16,6 +15,7 @@
         "download": "https://www.npmjs.com/package/asciimath2ml",
         "license": "license.html",
         "footer": "Copyright © 2024 Tommi Johtela",
-        "syntaxHighlight": "son-of-obsidian"
+        "syntaxHighlight": "son-of-obsidian",
+        "styles": [ "theme.css" ]
     }
 }

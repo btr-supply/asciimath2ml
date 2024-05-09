@@ -1,0 +1,15 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "lits-serve",
+			"problemMatcher": [
+				"$tsc-watch"
+			],
+			"label": "npm: lits-serve",
+			"detail": "lits --serve --outDir .devout",
+			"isBackground": true
+		}
+	]
+}

@@ -6,10 +6,9 @@
  * string for showing equations in browser.
  * 
  * We use the `HtmlTemplate` template literal builder to construct the resulted
- * HTML. This comes from [LiTScript](https://johtela.github.io/litscript/)
- * package.
+ * HTML. This comes from helper module.
  */
-import { html, HtmlTemplate } from 'litscript/src/templates/html'
+import { html, HtmlTemplate, htmlTemplateToString } from './html'
 /**
  * ## Parser Input
  * 
@@ -19,8 +18,8 @@ import { html, HtmlTemplate } from 'litscript/src/templates/html'
  */
 class ParserInput {
     private text: string
-    private pos: number
     private symbols: SymbolTable
+    pos: number
     /**
      * Constructor initializes position to zero.
      */
@@ -35,7 +34,7 @@ class ParserInput {
     }
 
     skipWhitespace(): number {
-        while (this.pos < this.text.length && /\w/.test(this.text[this.pos]))
+        while (this.pos < this.text.length && /\s/.test(this.text[this.pos]))
             ++this.pos
         return this.pos < this.text.length ? this.pos : -1
     }
@@ -43,14 +42,13 @@ class ParserInput {
     peekSymbol(): [Symbol, number] {
         let pos = this.skipWhitespace()
         if (pos < 0)
-            return [error("Input exhausted"), pos]
+            return [eof(), pos]
         let curr = this.text[pos]
         /**
          * Check if input is a text `"..."` string.
          */
         if (curr == '"') {
-            while (pos < this.text.length && this.text[pos] != '"')
-                ++pos
+            while (++pos < this.text.length && this.text[pos] != '"') {}
             return [text(this.text.slice(this.pos + 1, pos)), pos + 1]
         }
         /**
@@ -59,30 +57,26 @@ class ParserInput {
         if (/\d/.test(curr)) {
             while (pos < this.text.length && /[\d\.,]/.test(this.text[pos]))
                 ++pos
-            return [number(this.text.slice(this.pos + 1, pos)), pos]
+            return [number(this.text.slice(this.pos, pos)), pos]
         }
         /**
          * Find the correct symbol from the table.
          */
         let syms = this.symbols[curr]
-        let i = 0
-        while (i < syms.length) {
-            let sym = syms[i]
-            let len = syms[i].input.length
-            if (this.text.slice(pos, pos + len) == sym.input)
-                return [sym, pos + len]
-        }
+        if (syms)
+            for (let i = 0; i < syms.length; ++i) {
+                let sym = syms[i]
+                let len = sym.input.length
+                if (this.text.slice(pos, pos + len) == sym.input)
+                    return [sym, pos + len]
+            }
         return [error("Invalid symbol"), pos]
     }
     
-    skipTo(pos: number) {
-        this.pos += pos
-    }
-
     nextSymbol(): Symbol {
         let [sym, pos] = this.peekSymbol()
-        if (pos < this.text.length)
-            this.skipTo(pos)
+        if (pos >= 0)
+            this.pos = pos
         return sym
     }
 }
@@ -96,7 +90,8 @@ enum SymbolKind {
     RightBracket,
     Unary,
     Binary,
-    Error
+    Error,
+    Eof
 }
 
 interface Symbol {
@@ -128,6 +123,14 @@ function error(msg: string): Symbol {
         kind: SymbolKind.Error, 
         input: "", 
         parser: () => html`<merror><mtext>${msg}</mtext></merror>` 
+    }
+}
+
+function eof(): Symbol {
+    return { 
+        kind: SymbolKind.Eof, 
+        input: "", 
+        parser: () => html``
     }
 }
 
@@ -183,14 +186,6 @@ function unaryParser(oper: HtmlTemplate): Parser {
     }
 }
 
-function binaryParser(oper: HtmlTemplate): Parser {
-    return input => {
-        let arg1 = sexprParser(input)
-        let arg2 = sexprParser(input)
-        return html`<mrow>${arg1}${oper}${arg2}</mrow>`
-    }
-}
-
 function unaryEmbedParser(tag: string): Parser {
     return input => {
         let arg = sexprParser(input)
@@ -205,6 +200,20 @@ function unaryEmbedWithParser(tag: string, arg2: HtmlTemplate): Parser {
     }
 }
 
+function unarySurroundParser(left: HtmlTemplate, right: HtmlTemplate): Parser {
+    return input => {
+        let arg = sexprParser(input)
+        return html`<mrow>${left}${arg}${right}</mrow>`
+    }
+}
+
+function unaryAttrParser(tag: string, attr: string): Parser {
+    return input => {
+        let arg = sexprParser(input)
+        return html`<${tag} ${attr}">${arg}</${tag}>`
+    }
+}
+
 function binaryEmbedParser(tag: string): Parser {
     return input => {
         let arg1 = sexprParser(input)
@@ -213,10 +222,11 @@ function binaryEmbedParser(tag: string): Parser {
     }
 }
 
-function unarySurroundParser(left: HtmlTemplate, right: HtmlTemplate): Parser {
+function binaryAttrParser(tag: string, attr: string): Parser {
     return input => {
-        let arg = sexprParser(input)
-        return html`<mrow>${left}${arg}${right}</mrow>`
+        let arg1 = sexprParser(input)
+        let arg2 = sexprParser(input)
+        return html`<${tag} ${attr}="${arg1}">${arg2}</${tag}>`
     }
 }
 
@@ -228,7 +238,7 @@ function parseSExpr(input: ParserInput): [HtmlTemplate, Symbol] {
         let sym2 = input.nextSymbol()
         let rbrac = sym2.kind == SymbolKind.RightBracket ?
             sym2.parser(input) : error("Missing closing paren")
-        return [html`${lbrac}${exp}${rbrac}`, sym]
+        return [html`<mrow>${lbrac}${exp}${rbrac}</mrow>`, sym]
     }
     return [sym.parser(input), sym]
 }
@@ -243,12 +253,12 @@ function iexprParser(input: ParserInput): HtmlTemplate {
     let sup: HtmlTemplate | undefined
     let [next, pos] = input.peekSymbol()
     if (next.input == "_") {
-        input.skipTo(pos)
+        input.pos = pos
         sub = sexprParser(input);
         [next, pos] = input.peekSymbol()
     }
     if (next.input == "^") {
-        input.skipTo(pos)
+        input.pos = pos
         sup = sexprParser(input)
     }
     if (sym.kind == SymbolKind.UnderOver)
@@ -263,17 +273,18 @@ function iexprParser(input: ParserInput): HtmlTemplate {
             res
 }
 
+
 function exprParser(input: ParserInput): HtmlTemplate {
     let res = iexprParser(input)
     let [next, pos] = input.peekSymbol()
-    if (next.kind == SymbolKind.Error)
+    if (next.kind == SymbolKind.Eof || next.kind == SymbolKind.RightBracket)
         return res
     if (next.input == "/") {
-        input.skipTo(pos)
+        input.pos = pos
         let quot = iexprParser(input)
-        return html`<mfrac>${res}${quot}</mfrac>`
+        res = html`<mfrac>${res}${quot}</mfrac>`
     }
-    return exprParser(input)
+    return html`${res}${exprParser(input)}`
 }
 
 function underOverOper(input: string, oper = input): Symbol {
@@ -289,14 +300,6 @@ function unary(input: string, oper = input): Symbol {
         kind: SymbolKind.Unary, 
         input, 
         parser: unaryParser(html`<mo>${oper}</mo>`) 
-    }
-}
-
-function binary(input: string, oper = input): Symbol {
-    return { 
-        kind: SymbolKind.Binary, 
-        input, 
-        parser: binaryParser(html`<mo>${oper}</mo>`) 
     }
 }
 
@@ -316,6 +319,23 @@ function unaryEmbedWith(input: string, tag: string, arg2: string): Symbol {
     }
 }
 
+function unarySurround(input: string, left: string, right: string): Symbol {
+    return { 
+        kind: SymbolKind.Unary, 
+        input, 
+        parser: unarySurroundParser(html`<mo>${left}</mo>`, 
+            html`<mo>${right}</mo>`) 
+    }
+}
+
+function unaryAttr(input: string, tag: string, attr: string): Symbol {
+    return { 
+        kind: SymbolKind.Unary, 
+        input, 
+        parser: unaryAttrParser(tag, attr) 
+    }
+}
+
 function binaryEmbed(input: string, tag: string): Symbol {
     return { 
         kind: SymbolKind.Binary, 
@@ -324,12 +344,11 @@ function binaryEmbed(input: string, tag: string): Symbol {
     }
 }
 
-function unarySurround(input: string, left: string, right: string): Symbol {
+function binaryAttr(input: string, tag: string, attr: string): Symbol {
     return { 
-        kind: SymbolKind.Unary, 
+        kind: SymbolKind.Binary, 
         input, 
-        parser: unarySurroundParser(html`<mo>${left}</mo>`, 
-            html`<mo>${right}</mo>`) 
+        parser: binaryAttrParser(tag, attr) 
     }
 }
 
@@ -361,6 +380,9 @@ const symbols: SymbolTable = {
         ident("B")
     ],
     c: [
+        unaryAttr("cancel", "menclose", 'notation="updiagonalstrike"'),
+        binaryAttr("color", "mstyle", "mathcolor"),
+        binaryAttr("class", "mrow", "class"),
         oper("cdots", "\u22EF"),
         unarySurround("ceil", "\u2308", "\u2309"),
         unary("cosh"),
@@ -438,7 +460,9 @@ const symbols: SymbolTable = {
         ident("iota", "\u03B9"),
         oper("int", "\u222B"),
         oper("in", "\u2208"),
-        textOper("if", "if")
+        textOper("if", "if"),
+        binaryAttr("id", "mrow", "id"),
+        ident("i")
     ],
     I: [
         ident("I")
@@ -761,4 +785,10 @@ const symbols: SymbolTable = {
     "}": [
         rightBracket("}")
     ]
+}
+
+export function asciiToMathML(text: string): string {
+    let input = new ParserInput(text, symbols)
+    let temp = html`<math><mrow>${exprParser(input)}</mrow></math>`
+    return htmlTemplateToString(temp)
 }

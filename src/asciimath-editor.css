@@ -1,0 +1,12 @@
+.body {
+    display: flex;
+    align-items: center;
+}
+.body textarea {
+    font-size: 1rem;
+}
+.body math {
+    font-family: "Latin Modern";
+    font-size: 1.2rem;
+    margin: 1rem;
+}
