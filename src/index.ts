@@ -292,7 +292,7 @@ function binaryEmbedParser(tag: string): Parser {
 
 function binaryAttrParser(tag: string, attr: string): Parser {
     return input => {
-        let arg1 = sexprParser(input)
+        let arg1 = input.nextSymbol().input
         let arg2 = sexprParser(input)
         return /*html*/`<${tag} ${attr}="${arg1}">${arg2}</${tag}>`
     }

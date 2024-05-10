@@ -1,13 +1,36 @@
 .body {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
 }
-.body textarea {
+#input {
     font-family: var(--mono-font);
     font-size: 1rem;
 }
-.body math {
+#preview {
+    margin: 1rem;
+    color: gray;
+    font-family: var(--sans-font);
+    font-size: 1rem;
+    flex-grow: 1;
+}
+#preview math {
+    color: var(--cnt-color);
     font-family: "Latin Modern";
     font-size: 1.2rem;
-    margin: 1rem;
+}
+#preview details {
+    margin-top: 0.5rem;
+    background-color: var(--cnt-pre-color);
+    border-radius: 0.5rem;
+}
+#preview summary {
+    cursor: pointer;
+    background-color: var(--cnt-bg-color);
+}
+#preview xmp {
+    margin: 0;
+    color: var(--cnt-color);
+    overflow: auto;
+    max-width: 33vw;
+    max-height: 33vh;
 }
