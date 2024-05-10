@@ -50,7 +50,7 @@ class ParserInput {
          * Check if input is a number.
          */
         if (/\d/.test(curr)) {
-            while (pos < this.text.length && /[\d\.,]/.test(this.text[pos]))
+            while (pos < this.text.length && /[\d\.]/.test(this.text[pos]))
                 ++pos
             return [number(this.text.slice(this.pos, pos)), pos]
         }
