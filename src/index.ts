@@ -848,6 +848,9 @@ const symbols: SymbolTable = {
     ".": [
         oper("...", "..."),
     ],
+    ",": [
+        oper(",", ",")
+    ],
     "_": [
         oper("_|_", "\u22A5"),
         oper("_", "")
