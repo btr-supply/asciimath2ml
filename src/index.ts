@@ -65,7 +65,7 @@ class ParserInput {
                 if (this.text.slice(pos, pos + len) == sym.input)
                     return [sym, pos + len]
             }
-        return [error("Invalid symbol"), pos]
+        return [error(curr), pos + 1]
     }
     
     nextSymbol(): Symbol {
@@ -79,13 +79,10 @@ class ParserInput {
 type Parser = (input: ParserInput) => string
 
 enum SymbolKind {
-    Const,
+    Default,
     UnderOver,
     LeftBracket,
     RightBracket,
-    Unary,
-    Binary,
-    Error,
     Eof
 }
 
@@ -99,7 +96,7 @@ type SymbolTable = { [firstLetter: string]: Symbol[] }
 
 function text(input: string): Symbol {
     return {
-        kind: SymbolKind.Const,
+        kind: SymbolKind.Default,
         input,
         parser: () => /*html*/`<mtext>${input}</mtext>`
     }
@@ -107,7 +104,7 @@ function text(input: string): Symbol {
 
 function number(input: string): Symbol {
     return {
-        kind: SymbolKind.Const,
+        kind: SymbolKind.Default,
         input,
         parser: () => /*html*/`<mn>${input}</mn>`
     }
@@ -115,7 +112,7 @@ function number(input: string): Symbol {
 
 function error(msg: string): Symbol {
     return { 
-        kind: SymbolKind.Error, 
+        kind: SymbolKind.Default, 
         input: "", 
         parser: () => /*html*/`<merror><mtext>${msg}</mtext></merror>` 
     }
@@ -131,7 +128,7 @@ function eof(): Symbol {
 
 function ident(input: string, output = input): Symbol {
     return { 
-        kind: SymbolKind.Const, 
+        kind: SymbolKind.Default, 
         input, 
         parser: () => /*html*/`<mi>${output}</mi>` 
     }
@@ -139,7 +136,7 @@ function ident(input: string, output = input): Symbol {
 
 function oper(input: string, output: string): Symbol {
     return { 
-        kind: SymbolKind.Const, 
+        kind: SymbolKind.Default, 
         input, 
         parser: () => /*html*/`<mo>${output}</mo>` 
     }
@@ -147,7 +144,7 @@ function oper(input: string, output: string): Symbol {
 
 function textOper(input: string, output = input): Symbol {
     return { 
-        kind: SymbolKind.Const, 
+        kind: SymbolKind.Default, 
         input, 
         parser: () => /*html*/`<mrow><mspace width="1ex"/><mtext>${output            
             }</mtext><mspace width="1ex"/></mrow>` 
@@ -231,8 +228,8 @@ function parseSExpr(input: ParserInput): [string, Symbol] {
         let lbrac = sym.parser(input)
         let exp = exprParser(input)
         let sym2 = input.nextSymbol()
-        let rbrac = sym2.kind == SymbolKind.RightBracket ?
-            sym2.parser(input) : error("Missing closing paren")
+        let rbrac = (sym2.kind == SymbolKind.RightBracket ? 
+            sym2 : error("Missing closing paren")).parser(input)
         return [/*html*/`<mrow>${lbrac}${exp}${rbrac}</mrow>`, sym]
     }
     return [sym.parser(input), sym]
@@ -270,19 +267,22 @@ function iexprParser(input: ParserInput): string {
 
 
 function exprParser(input: ParserInput): string {
-    let res = iexprParser(input)
-    let [next, pos] = input.peekSymbol()
-    if (next.kind == SymbolKind.Eof || next.kind == SymbolKind.RightBracket)
-        return res
-    if (next.input == "/") {
-        input.pos = pos
-        let quot = iexprParser(input)
-        res = /*html*/`<mfrac>${res}${quot}</mfrac>`;
-        [next, ] = input.peekSymbol()
+    let res = ""
+    while (true) {
+        let exp = iexprParser(input)
+        let [next, pos] = input.peekSymbol()
         if (next.kind == SymbolKind.Eof || next.kind == SymbolKind.RightBracket)
-            return res
+            return res + exp
+        if (next.input == "/") {
+            input.pos = pos
+            let quot = iexprParser(input)
+            exp = /*html*/`$<mfrac>${exp}${quot}</mfrac>`;
+            [next, ] = input.peekSymbol()
+            if (next.kind == SymbolKind.Eof || next.kind == SymbolKind.RightBracket)
+                return res + exp
+        }
+        res += exp
     }
-    return /*html*/`${res}${exprParser(input)}`
 }
 
 function underOverOper(input: string, oper = input): Symbol {
@@ -295,7 +295,7 @@ function underOverOper(input: string, oper = input): Symbol {
 
 function unary(input: string, oper = input): Symbol {
     return { 
-        kind: SymbolKind.Unary, 
+        kind: SymbolKind.Default, 
         input, 
         parser: unaryParser(/*html*/`<mo>${oper}</mo>`) 
     }
@@ -303,7 +303,7 @@ function unary(input: string, oper = input): Symbol {
 
 function unaryEmbed(input: string, tag: string): Symbol {
     return { 
-        kind: SymbolKind.Unary, 
+        kind: SymbolKind.Default, 
         input, 
         parser: unaryEmbedParser(tag)
     }
@@ -319,7 +319,7 @@ function unaryUnderOver(input: string, tag: string, arg2: string): Symbol {
 
 function unarySurround(input: string, left: string, right: string): Symbol {
     return { 
-        kind: SymbolKind.Unary, 
+        kind: SymbolKind.Default, 
         input, 
         parser: unarySurroundParser(/*html*/`<mo>${left}</mo>`, 
             /*html*/`<mo>${right}</mo>`) 
@@ -328,7 +328,7 @@ function unarySurround(input: string, left: string, right: string): Symbol {
 
 function unaryAttr(input: string, tag: string, attr: string): Symbol {
     return { 
-        kind: SymbolKind.Unary, 
+        kind: SymbolKind.Default, 
         input, 
         parser: unaryAttrParser(tag, attr) 
     }
@@ -336,7 +336,7 @@ function unaryAttr(input: string, tag: string, attr: string): Symbol {
 
 function binaryEmbed(input: string, tag: string): Symbol {
     return { 
-        kind: SymbolKind.Binary, 
+        kind: SymbolKind.Default,
         input, 
         parser: binaryEmbedParser(tag)
     }
@@ -344,7 +344,7 @@ function binaryEmbed(input: string, tag: string): Symbol {
 
 function binaryAttr(input: string, tag: string, attr: string): Symbol {
     return { 
-        kind: SymbolKind.Binary, 
+        kind: SymbolKind.Default, 
         input, 
         parser: binaryAttrParser(tag, attr) 
     }
