@@ -14,6 +14,7 @@
 class ParserInput {
     private text: string
     private symbols: SymbolTable
+    private charTables: string[][] = []
     pos: number
     /**
      * Constructor initializes position to zero.
@@ -74,7 +75,59 @@ class ParserInput {
             this.pos = pos
         return sym
     }
+
+    pushTable(table: string[]) {
+        this.charTables.push(table)
+    }
+
+    popTable() {
+        this.charTables.pop()
+    }
+
+    table(): string[] | undefined {
+        return this.charTables[this.charTables.length - 1]
+    }
 }
+
+let calTable = ["\uD835\uDC9C", "\u212C", "\uD835\uDC9E", "\uD835\uDC9F", "\u2130", 
+    "\u2131", "\uD835\uDCA2", "\u210B", "\u2110", "\uD835\uDCA5", "\uD835\uDCA6", 
+    "\u2112", "\u2133", "\uD835\uDCA9", "\uD835\uDCAA", "\uD835\uDCAB", 
+    "\uD835\uDCAC", "\u211B", "\uD835\uDCAE", "\uD835\uDCAF", "\uD835\uDCB0", 
+    "\uD835\uDCB1", "\uD835\uDCB2", "\uD835\uDCB3", "\uD835\uDCB4", 
+    "\uD835\uDCB5", "\uD835\uDCB6", "\uD835\uDCB7", "\uD835\uDCB8", 
+    "\uD835\uDCB9", "\u212F", "\uD835\uDCBB", "\u210A", "\uD835\uDCBD", 
+    "\uD835\uDCBE", "\uD835\uDCBF", "\uD835\uDCC0", "\uD835\uDCC1", 
+    "\uD835\uDCC2", "\uD835\uDCC3", "\u2134", "\uD835\uDCC5", "\uD835\uDCC6", 
+    "\uD835\uDCC7", "\uD835\uDCC8", "\uD835\uDCC9", "\uD835\uDCCA", 
+    "\uD835\uDCCB", "\uD835\uDCCC", "\uD835\uDCCD", "\uD835\uDCCE", 
+    "\uD835\uDCCF"]
+
+let frkTable = ["\uD835\uDD04", "\uD835\uDD05", "\u212D", "\uD835\uDD07", 
+    "\uD835\uDD08", "\uD835\uDD09", "\uD835\uDD0A", "\u210C", "\u2111", 
+    "\uD835\uDD0D", "\uD835\uDD0E", "\uD835\uDD0F", "\uD835\uDD10", 
+    "\uD835\uDD11", "\uD835\uDD12", "\uD835\uDD13", "\uD835\uDD14", "\u211C", 
+    "\uD835\uDD16", "\uD835\uDD17", "\uD835\uDD18", "\uD835\uDD19", 
+    "\uD835\uDD1A", "\uD835\uDD1B", "\uD835\uDD1C", "\u2128", "\uD835\uDD1E", 
+    "\uD835\uDD1F", "\uD835\uDD20", "\uD835\uDD21", "\uD835\uDD22", 
+    "\uD835\uDD23", "\uD835\uDD24", "\uD835\uDD25", "\uD835\uDD26", 
+    "\uD835\uDD27", "\uD835\uDD28", "\uD835\uDD29", "\uD835\uDD2A", 
+    "\uD835\uDD2B", "\uD835\uDD2C", "\uD835\uDD2D", "\uD835\uDD2E", 
+    "\uD835\uDD2F", "\uD835\uDD30", "\uD835\uDD31", "\uD835\uDD32", 
+    "\uD835\uDD33", "\uD835\uDD34", "\uD835\uDD35", "\uD835\uDD36", 
+    "\uD835\uDD37"];
+
+let bbbTable = ["\uD835\uDD38", "\uD835\uDD39", "\u2102", "\uD835\uDD3B", 
+    "\uD835\uDD3C", "\uD835\uDD3D", "\uD835\uDD3E", "\u210D", "\uD835\uDD40", 
+    "\uD835\uDD41", "\uD835\uDD42", "\uD835\uDD43", "\uD835\uDD44", "\u2115", 
+    "\uD835\uDD46", "\u2119", "\u211A", "\u211D", "\uD835\uDD4A", "\uD835\uDD4B", 
+    "\uD835\uDD4C", "\uD835\uDD4D", "\uD835\uDD4E", "\uD835\uDD4F", 
+    "\uD835\uDD50", "\u2124", "\uD835\uDD52", "\uD835\uDD53", "\uD835\uDD54", 
+    "\uD835\uDD55", "\uD835\uDD56", "\uD835\uDD57", "\uD835\uDD58", 
+    "\uD835\uDD59", "\uD835\uDD5A", "\uD835\uDD5B", "\uD835\uDD5C", 
+    "\uD835\uDD5D", "\uD835\uDD5E", "\uD835\uDD5F", "\uD835\uDD60", 
+    "\uD835\uDD61", "\uD835\uDD62", "\uD835\uDD63", "\uD835\uDD64", 
+    "\uD835\uDD65", "\uD835\uDD66", "\uD835\uDD67", "\uD835\uDD68", 
+    "\uD835\uDD69", "\uD835\uDD6A", "\uD835\uDD6B"];
 
 type Parser = (input: ParserInput) => string
 
@@ -94,11 +147,25 @@ interface Symbol {
 
 type SymbolTable = { [firstLetter: string]: Symbol[] }
 
+function convertText(text: string, table?: string[]): string {
+    if (!table)
+        return text
+    let res = ""
+    for (let i = 0; i < text.length; ++i) {
+        let ch = text.charCodeAt(i)
+        res += ch >= 65 && ch < 91 ? table[ch-65] : 
+            ch >= 97 && ch < 123 ? table[ch-71] : 
+            text[i]
+    }
+    return res
+}
+
 function text(input: string): Symbol {
     return {
         kind: SymbolKind.Default,
         input,
-        parser: () => /*html*/`<mtext>${input}</mtext>`
+        parser: inp => /*html*/`<mtext>${
+            convertText(input, inp.table())}</mtext>`
     }
 }
 
@@ -130,7 +197,7 @@ function ident(input: string, output = input): Symbol {
     return { 
         kind: SymbolKind.Default, 
         input, 
-        parser: () => /*html*/`<mi>${output}</mi>` 
+        parser: inp => /*html*/`<mi>${convertText(output, inp.table())}</mi>` 
     }
 }
 
@@ -203,6 +270,15 @@ function unaryAttrParser(tag: string, attr: string): Parser {
     return input => {
         let arg = sexprParser(input)
         return /*html*/`<${tag} ${attr}">${arg}</${tag}>`
+    }
+}
+
+function unaryCharTableParser(table: string[]): Parser {
+    return input => {
+        input.pushTable(table)
+        let res = sexprParser(input)
+        input.popTable()
+        return res
     }
 }
 
@@ -336,6 +412,14 @@ function unaryAttr(input: string, tag: string, attr: string): Symbol {
     }
 }
 
+function unaryCharTable(input: string, table: string[]): Symbol {
+    return { 
+        kind: SymbolKind.Default, 
+        input, 
+        parser: unaryCharTableParser(table)
+    }
+}
+
 function binaryEmbed(input: string, tag: string): Symbol {
     return { 
         kind: SymbolKind.Default,
@@ -374,6 +458,8 @@ const symbols: SymbolTable = {
     b: [
         ident("beta", "\u03B2"),
         unaryUnderOver("bar", "mover", "\u00AF"),
+        unaryCharTable("bbb", bbbTable),
+        unaryAttr("bb", "mstyle", 'style="font-weight: bold"'),
         ident("b")
     ],
     B: [
@@ -391,6 +477,7 @@ const symbols: SymbolTable = {
         unary("cot"),
         unary("csc"),
         ident("chi", "\u03C7"),
+        unaryCharTable("cc", calTable),
         ident("c")
     ],
     C: [
@@ -431,6 +518,7 @@ const symbols: SymbolTable = {
         unarySurround("floor", "\u230A", "\u230B"),
         oper("frown", "\u2322"),
         binaryEmbed("frac", "mfrac"),
+        unaryCharTable("fr", frkTable),
         ident("f")
     ],
     F: [
@@ -587,6 +675,7 @@ const symbols: SymbolTable = {
         underOverOper("sup", "\u2283"),
         unary("sin"),
         unary("sec"),
+        unaryAttr("sf", "mstyle", 'style="font-family: sans-serif"'),
         ident("s")
     ],
     S: [
@@ -603,6 +692,7 @@ const symbols: SymbolTable = {
         unary("tanh"),
         unary("tan"),
         ident("tau", "\u03C4"),
+        unaryAttr("tt", "mstyle", 'style="font-family: monospace"'),
         ident("t")
     ],
     T: [

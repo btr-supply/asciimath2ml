@@ -1,5 +1,6 @@
 @font-face {
     font-family: 'Latin Modern';
-    src: url(fonts/latinmodern-math.otf);
+    src: url(fonts/STIXTwoMath-Regular.otf);
     font-style: normal;
+    font-weight: normal;
 }
