@@ -226,8 +226,10 @@ function parseSExpr(input: ParserInput): [string, Symbol] {
     let sym = input.nextSymbol()
     if (sym.kind == SymbolKind.LeftBracket) {
         let lbrac = sym.parser(input)
-        let exp = exprParser(input)
-        let sym2 = input.nextSymbol()
+        let [sym2,] = input.peekSymbol()
+        let exp = sym2.kind == SymbolKind.RightBracket ? 
+            "" : exprParser(input) 
+        sym2 = input.nextSymbol()
         let rbrac = (sym2.kind == SymbolKind.RightBracket ? 
             sym2 : error("Missing closing paren")).parser(input)
         return [/*html*/`<mrow>${lbrac}${exp}${rbrac}</mrow>`, sym]
@@ -416,7 +418,7 @@ const symbols: SymbolTable = {
         ident("D")
     ],
     e: [
-        ident("epsi", "\u03B5"),
+        ident("epsilon", "\u03B5"),
         ident("eta", "\u03B7"),
         unary("exp"),
         ident("e")
