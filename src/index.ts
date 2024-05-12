@@ -5,55 +5,55 @@
  * translate it to [MathML](https://developer.mozilla.org/en-US/docs/Web/MathML)
  * string for showing equations in browser.
  * 
- * ## Parser Input
+ * ## Scanner
  * 
- * We encapsulate the input string into `ParserInput` class. It stores the
- * current position in the string as well as reference to the symbol table
+ * The scanner converts the input string into a stream of symbols. It stores the
+ * current position in the input as well as reference to the symbol table
  * defined below.
  */
-class ParserInput {
-    private text: string
+class Scanner {
+    private input: string
     private symbols: SymbolTable
     private charTables: string[][] = []
     pos: number
     /**
      * Constructor initializes position to zero.
      */
-    constructor(text: string, symbols: SymbolTable) {
-        this.text = text
+    constructor(input: string, symbols: SymbolTable) {
+        this.input = input
         this.symbols = symbols
         this.pos = 0        
     }
     
     eof(): boolean {
-        return this.pos >= this.text.length
+        return this.pos >= this.input.length
     }
 
     skipWhitespace(): number {
-        while (this.pos < this.text.length && /\s/.test(this.text[this.pos]))
+        while (this.pos < this.input.length && /\s/.test(this.input[this.pos]))
             ++this.pos
-        return this.pos < this.text.length ? this.pos : -1
+        return this.pos < this.input.length ? this.pos : -1
     }
     
     peekSymbol(): [Symbol, number] {
         let pos = this.skipWhitespace()
         if (pos < 0)
             return [eof(), pos]
-        let curr = this.text[pos]
+        let curr = this.input[pos]
         /**
          * Check if input is a text `"..."` string.
          */
         if (curr == '"') {
-            while (++pos < this.text.length && this.text[pos] != '"') {}
-            return [text(this.text.slice(this.pos + 1, pos)), pos + 1]
+            while (++pos < this.input.length && this.input[pos] != '"') {}
+            return [text(this.input.slice(this.pos + 1, pos)), pos + 1]
         }
         /**
          * Check if input is a number.
          */
         if (/\d/.test(curr)) {
-            while (pos < this.text.length && /[\d\.]/.test(this.text[pos]))
+            while (pos < this.input.length && /[\d\.]/.test(this.input[pos]))
                 ++pos
-            return [number(this.text.slice(this.pos, pos)), pos]
+            return [number(this.input.slice(this.pos, pos)), pos]
         }
         /**
          * Find the correct symbol from the table.
@@ -63,7 +63,7 @@ class ParserInput {
             for (let i = 0; i < syms.length; ++i) {
                 let sym = syms[i]
                 let len = sym.input.length
-                if (this.text.slice(pos, pos + len) == sym.input)
+                if (this.input.slice(pos, pos + len) == sym.input)
                     return [sym, pos + len]
             }
         return [error(curr), pos + 1]
@@ -129,13 +129,17 @@ let bbbTable = ["\uD835\uDD38", "\uD835\uDD39", "\u2102", "\uD835\uDD3B",
     "\uD835\uDD65", "\uD835\uDD66", "\uD835\uDD67", "\uD835\uDD68", 
     "\uD835\uDD69", "\uD835\uDD6A", "\uD835\uDD6B"];
 
-type Parser = (input: ParserInput) => string
+type Parser = (scanner: Scanner) => string
 
 enum SymbolKind {
     Default,
     UnderOver,
     LeftBracket,
     RightBracket,
+    MatrixLeftBracket,
+    MatrixRightBracket,
+    MatrixCellSep,    
+    MatrixRowSep,    
     Eof
 }
 
@@ -197,7 +201,8 @@ function ident(input: string, output = input): Symbol {
     return { 
         kind: SymbolKind.Default, 
         input, 
-        parser: inp => /*html*/`<mi>${convertText(output, inp.table())}</mi>` 
+        parser: scanner => /*html*/`<mi>${
+            convertText(output, scanner.table())}</mi>` 
     }
 }
 
@@ -239,97 +244,97 @@ function rightBracket(input: string, output?: string): Symbol {
 }
 
 function unaryParser(oper: string): Parser {
-    return input => {
-        let arg = sexprParser(input)
+    return scanner => {
+        let arg = sexprParser(scanner)
         return /*html*/`<mrow>${oper}${arg}</mrow>`
     }
 }
 
 function unaryEmbedParser(tag: string): Parser {
-    return input => {
-        let arg = sexprParser(input)
+    return scanner => {
+        let arg = sexprParser(scanner)
         return /*html*/`<${tag}>${arg}</${tag}>`
     }
 }
 
 function unaryEmbedWithParser(tag: string, arg2: string): Parser {
-    return input => {
-        let arg1 = sexprParser(input)
+    return scanner => {
+        let arg1 = sexprParser(scanner)
         return /*html*/`<${tag}>${arg1}${arg2}</${tag}>`
     }
 }
 
 function unarySurroundParser(left: string, right: string): Parser {
-    return input => {
-        let arg = sexprParser(input)
+    return scanner => {
+        let arg = sexprParser(scanner)
         return /*html*/`<mrow>${left}${arg}${right}</mrow>`
     }
 }
 
 function unaryAttrParser(tag: string, attr: string): Parser {
-    return input => {
-        let arg = sexprParser(input)
+    return scanner => {
+        let arg = sexprParser(scanner)
         return /*html*/`<${tag} ${attr}">${arg}</${tag}>`
     }
 }
 
 function unaryCharTableParser(table: string[]): Parser {
-    return input => {
-        input.pushTable(table)
-        let res = sexprParser(input)
-        input.popTable()
+    return scanner => {
+        scanner.pushTable(table)
+        let res = sexprParser(scanner)
+        scanner.popTable()
         return res
     }
 }
 
 function binaryEmbedParser(tag: string): Parser {
-    return input => {
-        let arg1 = sexprParser(input)
-        let arg2 = sexprParser(input)
+    return scanner => {
+        let arg1 = sexprParser(scanner)
+        let arg2 = sexprParser(scanner)
         return /*html*/`<${tag}>${arg1}${arg2}</${tag}>`
     }
 }
 
 function binaryAttrParser(tag: string, attr: string): Parser {
-    return input => {
-        let arg1 = input.nextSymbol().input
-        let arg2 = sexprParser(input)
+    return scanner => {
+        let arg1 = scanner.nextSymbol().input
+        let arg2 = sexprParser(scanner)
         return /*html*/`<${tag} ${attr}="${arg1}">${arg2}</${tag}>`
     }
 }
 
-function parseSExpr(input: ParserInput): [string, Symbol] {
-    let sym = input.nextSymbol()
+function parseSExpr(scanner: Scanner): [string, Symbol] {
+    let sym = scanner.nextSymbol()
     if (sym.kind == SymbolKind.LeftBracket) {
-        let lbrac = sym.parser(input)
-        let [sym2,] = input.peekSymbol()
+        let lbrac = sym.parser(scanner)
+        let [sym2,] = scanner.peekSymbol()
         let exp = sym2.kind == SymbolKind.RightBracket ? 
-            "" : exprParser(input) 
-        sym2 = input.nextSymbol()
+            "" : exprParser(scanner) 
+        sym2 = scanner.nextSymbol()
         let rbrac = (sym2.kind == SymbolKind.RightBracket ? 
-            sym2 : error("Missing closing paren")).parser(input)
+            sym2 : error("Missing closing paren")).parser(scanner)
         return [/*html*/`<mrow>${lbrac}${exp}${rbrac}</mrow>`, sym]
     }
-    return [sym.parser(input), sym]
+    return [sym.parser(scanner), sym]
 }
 
-function sexprParser(input: ParserInput): string {
-    return parseSExpr(input)[0]
+function sexprParser(scanner: Scanner): string {
+    return parseSExpr(scanner)[0]
 }
 
-function iexprParser(input: ParserInput): string {
-    let [res, sym] = parseSExpr(input)
+function iexprParser(scanner: Scanner): string {
+    let [res, sym] = parseSExpr(scanner)
     let sub: string | undefined
     let sup: string | undefined
-    let [next, pos] = input.peekSymbol()
+    let [next, pos] = scanner.peekSymbol()
     if (next.input == "_") {
-        input.pos = pos
-        sub = sexprParser(input);
-        [next, pos] = input.peekSymbol()
+        scanner.pos = pos
+        sub = sexprParser(scanner);
+        [next, pos] = scanner.peekSymbol()
     }
     if (next.input == "^") {
-        input.pos = pos
-        sup = sexprParser(input)
+        scanner.pos = pos
+        sup = sexprParser(scanner)
     }
     if (sym.kind == SymbolKind.UnderOver)
         return sub && sup ? /*html*/`<munderover>${res}${sub}${sup}</munderover>` :
@@ -343,23 +348,61 @@ function iexprParser(input: ParserInput): string {
             res
 }
 
+const terminators = [ SymbolKind.Eof, SymbolKind.RightBracket, 
+    SymbolKind.MatrixCellSep, SymbolKind.MatrixRowSep, 
+    SymbolKind.MatrixRightBracket ]
 
-function exprParser(input: ParserInput): string {
+function exprParser(scanner: Scanner): string {
     let res = ""
     while (true) {
-        let exp = iexprParser(input)
-        let [next, pos] = input.peekSymbol()
-        if (next.kind == SymbolKind.Eof || next.kind == SymbolKind.RightBracket)
+        let exp = iexprParser(scanner)
+        let [next, pos] = scanner.peekSymbol()
+        if (terminators.includes(next.kind))
             return res + exp
         if (next.input == "/") {
-            input.pos = pos
-            let quot = iexprParser(input)
+            scanner.pos = pos
+            let quot = iexprParser(scanner)
             exp = /*html*/`$<mfrac>${exp}${quot}</mfrac>`;
-            [next, ] = input.peekSymbol()
-            if (next.kind == SymbolKind.Eof || next.kind == SymbolKind.RightBracket)
+            [next, ] = scanner.peekSymbol()
+            if (terminators.includes(next.kind))
                 return res + exp
         }
         res += exp
+    }
+}
+
+function matrixParser(leftBracket: string): Parser {
+    return scanner => {
+        let res = ""
+        while (true) {
+            let [sym, pos] = scanner.peekSymbol()
+            if (sym.kind == SymbolKind.Eof ||
+                sym.kind == SymbolKind.MatrixRightBracket) {
+                scanner.pos = pos
+                let rightBracket = sym.parser(scanner)
+                return leftBracket || rightBracket ?
+                    /*html*/`<mrow>${leftBracket}<mtable>${res
+                        }</mtable>${rightBracket}</mrow>` :
+                    /*html*/`<mtable>${res}</mtable>`
+            }
+            let row = matrixRowParser(scanner)
+            res = /*html*/`${res}<mtr>${row}</mtr>`
+        }
+    }
+}
+
+function matrixRowParser(scanner: Scanner): string {
+    let res = ""
+    while (true) {
+        let [sym, pos] = scanner.peekSymbol()
+        if (sym.kind == SymbolKind.Eof || sym.kind == SymbolKind.MatrixRowSep) {
+            scanner.pos = pos
+            return res
+        }
+        if (sym.kind == SymbolKind.MatrixRightBracket)
+            return res
+        let cell = exprParser(scanner)
+        res = /*html*/`${res}<mtd>${cell}</mtd>`
     }
 }
 
@@ -433,6 +476,38 @@ function binaryAttr(input: string, tag: string, attr: string): Symbol {
         kind: SymbolKind.Default, 
         input, 
         parser: binaryAttrParser(tag, attr) 
+    }
+}
+
+function leftMatrix(input: string, output?: string): Symbol {
+    return {
+        kind: SymbolKind.MatrixLeftBracket,
+        input,
+        parser: matrixParser(output ? /*html*/`<mo>${output}</mo>` : ""),
+    }
+}
+
+function rightMatrix(input: string, output?: string): Symbol {
+    return {
+        kind: SymbolKind.MatrixRightBracket,
+        input,
+        parser: () => output ? /*html*/`<mo>${output}</mo>` : ""
+    }
+}
+
+function matrixCellSep(input: string): Symbol {
+    return {
+        kind: SymbolKind.MatrixCellSep,
+        input,
+        parser: () => ""
+    }
+}
+
+function matrixRowSep(input: string): Symbol {
+    return {
+        kind: SymbolKind.MatrixRowSep,
+        input,
+        parser: () => ""
     }
 }
 
@@ -794,8 +869,13 @@ const symbols: SymbolTable = {
         oper("|--", "\u22A2"),
         oper("|==", "\u22A8"),
         oper("|__", "\u230A"),
+        leftMatrix("||:", "|"),
+        leftMatrix("|::"),
         oper("|~", "\u2308"),
-        leftBracket("|:", "|")
+        leftBracket("|:", "|"),
+        rightMatrix("|)", ")"),
+        rightMatrix("|]", "]"),
+        rightMatrix("|}", "}"),
     ],
     "<": [
         oper("<=>", "\u21D4"),
@@ -837,6 +917,8 @@ const symbols: SymbolTable = {
         oper("!", "!")
     ],
     ":": [
+        rightMatrix(":||", "|"),
+        rightMatrix("::|"),
         oper(":=", ":="),
         rightBracket(":)", "\u232A"),
         rightBracket(":|", "|"),
@@ -844,6 +926,10 @@ const symbols: SymbolTable = {
         oper(":.", "\u2234"),
         oper(":'", "\u2235"),
         oper(":", ":")
+    ],
+    ";": [
+        matrixRowSep(";;"),
+        matrixCellSep(";")
     ],
     ".": [
         oper("...", "..."),
@@ -859,6 +945,7 @@ const symbols: SymbolTable = {
         oper("'", "\u2032")
     ],
     "(": [
+        leftMatrix("(|", "("),
         leftBracket("(:", "\u2329"),
         leftBracket("(", "(")
     ],
@@ -866,12 +953,14 @@ const symbols: SymbolTable = {
         rightBracket(")", ")")
     ],
     "[": [
+        leftMatrix("[|", "["),
         leftBracket("[", "[")
     ],
     "]": [
         rightBracket("]", "]")
     ],
     "{": [
+        leftMatrix("{|", "{"),
         leftBracket("{:", "{"),
         leftBracket("{")
     ],
@@ -881,7 +970,7 @@ const symbols: SymbolTable = {
 }
 
 export function asciiToMathML(text: string, inline = false): string {
-    let input = new ParserInput(text, symbols)
+    let input = new Scanner(text, symbols)
     return /*html*/`<math display="${inline ? 'inline' : 'block'
         }"><mstyle displaystyle="true">${exprParser(input)}</mstyle></math>`
 }
