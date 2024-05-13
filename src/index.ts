@@ -358,6 +358,17 @@ function textOper(input: string, output = input): Symbol {
     }
 }
 /**
+ * A special kind of operator is needed for symbols that can have stuff under
+ * and over them.
+ */
+function underOverOper(input: string, oper = input): Symbol {
+    return { 
+        kind: SymbolKind.UnderOver, 
+        input, 
+        parser: () => /*html*/`<mo>${oper}</mo>`
+    }
+}
+/**
  * ### Brackets
  * 
  * Left bracket symbols such as `(`, `[`, `{` are returned by this function.
@@ -571,17 +582,17 @@ function binaryAttr(input: string, tag: string, attr: string): Symbol {
  * 
  * ### Simple Expressions
  * 
- * We already defined parsers for rules `v`, `u`, `b`, `l`, and `r`. So now we
- * need a parser for the `S` nonterminals which stands for "simple expression".
- * The parser for it is shown below. It returns the parsed expression and the
- * topmost (root) symbol of the expression parse tree. This is needed by the
- * `I` rule for determining whether subscripts and superscripts are shown 
- * normally, or under and over the expression.
+ * We already defined parsers for rules `v`, `u`, `b`, `l`, and `r`. So, now we
+ * need a parser for the nonterminal `S` which stands for "simple expression".
+ * The parser for it is shown below. It returns the MathML for S-expression and 
+ * the topmost (root) symbol of the parse tree. This is needed by the `I` rule 
+ * for determining whether subscripts and superscripts are shown normally, or 
+ * under and over the expression.
  * 
- * We don't have to check whether a symbol is unary or binary when parsing the
- * `S` rule. Unary and binary symbols handle their arguments inside their 
- * parsers. We only need to check whether the current symbol is a left bracket.
- * If so, we invoke the `E` rule by calling the `exprParser`.
+ * We don't have to check whether a symbol is unary or binary in the `S` rule. 
+ * Unary and binary symbols read their arguments inside their parsers. We only 
+ * need to check whether the current symbol is a left bracket. If so, we invoke 
+ * the `E` rule by calling the `exprParser`.
  * 
  * The special case is when there are no symbols between brackets. Technically,
  * that case is not supported by the grammar presented above, but in practice
@@ -606,7 +617,7 @@ function parseSExpr(scanner: Scanner): [string, Symbol] {
     return [sym.parser(scanner), sym]
 }
 /**
- * This variant conforms to the Parser type signature and can be used when the
+ * The function below conforms to the Parser type signature and is used the 
  * symbol is not needed.
  */
 function sexprParser(scanner: Scanner): string {
@@ -615,12 +626,12 @@ function sexprParser(scanner: Scanner): string {
 /**
  * ### Intermediate Expressions
  * 
- * The `I` rule handles subscripts and superscripts. Once we parsed a simple
- * expression, we need to check whether the next symbol is `_` or `^`. If either
- * is true, we parse the subscript and/or superscript and return correct MathML
+ * The `I` rule handles subscripts and superscripts. Once we've parsed a simple
+ * expression, we check whether the next symbol is `_` or `^`. If either is 
+ * true, we parse the subscript and/or superscript and return correct MathML
  * element based on kind of the base symbol. If the kind is `UnderOver` we use
- * <munderover> element (or its variant), otherwise we enclose the expressions 
- * in `<msubsup>` element.
+ * `<munderover>` element (or its variant); otherwise we enclose the 
+ * expressions in `<msubsup>` element.
  */
 function iexprParser(scanner: Scanner): string {
     let [res, sym] = parseSExpr(scanner)
@@ -681,7 +692,23 @@ function exprParser(scanner: Scanner): string {
         res += exp
     }
 }
-
+/**
+ * ## Matrices
+ * 
+ * Our syntax for matrices differs completely from the offical specification.
+ * We use separate symbols for opening and closing a matrix intead of recycling
+ * standard brackets. Matrix cells are separated by semicolons instead of 
+ * commas, and rows are separated by double semicolons instead of enclosing 
+ * them in brackets. The reason for deviating from the original syntax is
+ * purely convenience. We can make the parsing simpler and faster by not
+ * reusing symbols. Hopefully our syntax is also easier to remember and use as 
+ * there are no overloaded symbols.
+ * 
+ * The parser for matrices takes the opening left bracket as an argument. It 
+ * first checks if the next symbol is a closing right bracket or if we are at 
+ * the end of input. If so, we return the matrix constructed so far. If not, 
+ * we parse the next matrix row by calling `matrixRowParser`.
+ */
 function matrixParser(leftBracket: string): Parser {
     return scanner => {
         let res = ""
@@ -701,7 +728,12 @@ function matrixParser(leftBracket: string): Parser {
         }
     }
 }
-
+/**
+ * Parser for matrix rows calls `exprParser` repeatedly until either matrix row
+ * separator `;;`, closing bracket, or end of input is encountered. Note that
+ * `exprParser` also terminates when it sees the cell or row separator symbol 
+ * or end of input.
+ */
 function matrixRowParser(scanner: Scanner): string {
     let res = ""
     while (true) {
@@ -716,15 +748,10 @@ function matrixRowParser(scanner: Scanner): string {
         res = /*html*/`${res}<mtd>${cell}</mtd>`
     }
 }
-
-function underOverOper(input: string, oper = input): Symbol {
-    return { 
-        kind: SymbolKind.UnderOver, 
-        input, 
-        parser: () => /*html*/`<mo>${oper}</mo>`
-    }
-}
-
+/**
+ * Symbol for a left bracket opening a matrix is created with this function. 
+ * When the `output` is undefined the bracket is not rendered.
+ */
 function leftMatrix(input: string, output?: string): Symbol {
     return {
         kind: SymbolKind.MatrixLeftBracket,
@@ -732,7 +759,9 @@ function leftMatrix(input: string, output?: string): Symbol {
         parser: matrixParser(output ? /*html*/`<mo>${output}</mo>` : ""),
     }
 }
-
+/**
+ * Symbol for right bracket of a matrix is created similarly.
+ */
 function rightMatrix(input: string, output?: string): Symbol {
     return {
         kind: SymbolKind.MatrixRightBracket,
@@ -740,7 +769,9 @@ function rightMatrix(input: string, output?: string): Symbol {
         parser: () => output ? /*html*/`<mo>${output}</mo>` : ""
     }
 }
-
+/**
+ * The cell and row separators are always invisible.
+ */
 function matrixCellSep(input: string): Symbol {
     return {
         kind: SymbolKind.MatrixCellSep,
@@ -756,7 +787,12 @@ function matrixRowSep(input: string): Symbol {
         parser: () => ""
     }
 }
-
+/**
+ * ## Symbol Table
+ * 
+ * Now we have all the tools needed to define the full symbol table. The table
+ * covers all the possible inputs excepts for literal strings and numbers.
+ */
 const symbols: SymbolTable = {
     a: [
         unary("arcsin"),
@@ -1122,6 +1158,7 @@ const symbols: SymbolTable = {
         rightMatrix("|)", ")"),
         rightMatrix("|]", "]"),
         rightMatrix("|}", "}"),
+        oper("|", "|")
     ],
     "<": [
         oper("<=>", "\u21D4"),
@@ -1214,9 +1251,17 @@ const symbols: SymbolTable = {
         rightBracket("}")
     ]
 }
-
-export function asciiToMathML(text: string, inline = false): string {
-    let input = new Scanner(text, symbols)
+/**
+ * ## External API
+ * 
+ * None of the types and functions defined above are exported outside this 
+ * module. The only function we expose is below. It takes an AsciiMath equation
+ * as the input string and returns the corresponding MathML as string. The other
+ * parameter controls whether we set the display style of the equation to 
+ * `block` or `inline`.
+ */
+export function asciiToMathML(input: string, inline = false): string {
+    let scanner = new Scanner(input, symbols)
     return /*html*/`<math display="${inline ? 'inline' : 'block'
-        }"><mstyle displaystyle="true">${exprParser(input)}</mstyle></math>`
+        }"><mstyle displaystyle="true">${exprParser(scanner)}</mstyle></math>`
 }
