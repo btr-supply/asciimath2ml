@@ -1,54 +1,79 @@
 /**
- * # AsciiMath to MathML Converter
+ * # Implementation
  * 
- * We build a parser for [AsciiMath](https://asciimath.org/) syntax and 
- * translate it to [MathML](https://developer.mozilla.org/en-US/docs/Web/MathML)
- * string for showing equations in browser.
+ * We craft the scanner and parser for AsciiMath by hand to make them efficient 
+ * and compact. We use the "official" specification for the syntax from the
+ * [AsciiMath home page](https://asciimath.org/). Parts where we diverge from it
+ * are described in the [README page](../readme.html).
  * 
  * ## Scanner
  * 
- * The scanner converts the input string into a stream of symbols. It stores the
- * current position in the input as well as reference to the symbol table
- * defined below.
+ * The scanner converts the input string into a stream of symbols or tokens. The 
+ * symbols are defined in a big table at the end of this file. Scanner contains 
+ * the following state:
+ * 
+ * - the input string containing the AsciiMath equation,
+ * - current position in the input,
+ * - reference to the symbol (token) table, and
+ * - stack of character mapping tables currently in effect.
+ * 
+ * The type of the character mapping table is defined below. It's content is
+ * described later on.
  */
+type CharTable = string[]
+
 class Scanner {
     private input: string
     private symbols: SymbolTable
-    private charTables: string[][] = []
+    private charTables: CharTable[] = []
     pos: number
     /**
-     * Constructor initializes position to zero.
+     * Constructor initializes position to zero and sets the symbol table.
      */
     constructor(input: string, symbols: SymbolTable) {
         this.input = input
         this.symbols = symbols
         this.pos = 0        
     }
-    
+    /**
+     * If we are at the end of input `eof` method returns true.
+     */
     eof(): boolean {
         return this.pos >= this.input.length
     }
-
+    /**
+     * We skip spaces, tabs and linefeeds while scanning the input. Those
+     * characters are simply ignored and do not affect the output.
+     */
     skipWhitespace(): number {
         while (this.pos < this.input.length && /\s/.test(this.input[this.pos]))
             ++this.pos
         return this.pos < this.input.length ? this.pos : -1
     }
-    
+    /**
+     * To prevent backtracking and to make the parsing deterministic, we 
+     * sometimes need to peek what the next symbol is without consuming any 
+     * input. The `peekSymbol` method returns the next symbol in the input 
+     * string and the input position to we need to set to skip the symbol.
+     * 
+     * Scanners skips whitespace preceding a symbol. We return a negative
+     * position, if we are ath the end of input, and a special eof symbol.
+     */
     peekSymbol(): [Symbol, number] {
         let pos = this.skipWhitespace()
         if (pos < 0)
             return [eof(), pos]
         let curr = this.input[pos]
         /**
-         * Check if input is a text `"..."` string.
+         * Check if input is a text `"..."` string enclosed in doublequotes.
          */
         if (curr == '"') {
             while (++pos < this.input.length && this.input[pos] != '"') {}
             return [text(this.input.slice(this.pos + 1, pos)), pos + 1]
         }
         /**
-         * Check if input is a number.
+         * Check if input is a number. The only accepted decimal separator is
+         * dot `.`.
          */
         if (/\d/.test(curr)) {
             while (pos < this.input.length && /[\d\.]/.test(this.input[pos]))
@@ -56,7 +81,14 @@ class Scanner {
             return [number(this.input.slice(this.pos, pos)), pos]
         }
         /**
-         * Find the correct symbol from the table.
+         * Find the correct symbol from the table. The symbol table is a
+         * dictionary whose key is the first character of a symbol and value
+         * is a list of symbols starting with that character. To find the 
+         * correct symbol, we first get the list of symbols for character we 
+         * read from the input. The list of symbols is sorted in descending 
+         * order according to the length. So, we compare them in this order and 
+         * return the first one that matches the input. That way we find the 
+         * longest matching token.
          */
         let syms = this.symbols[curr]
         if (syms)
@@ -66,29 +98,62 @@ class Scanner {
                 if (this.input.slice(pos, pos + len) == sym.input)
                     return [sym, pos + len]
             }
+        /**
+         * If we don't find a matching symbol, we skip the current character
+         * and return error.
+         */
         return [error(curr), pos + 1]
     }
-    
+    /**
+     * Get the next symbol from the input and advance the position.
+     */    
     nextSymbol(): Symbol {
         let [sym, pos] = this.peekSymbol()
         if (pos >= 0)
             this.pos = pos
         return sym
     }
-
-    pushTable(table: string[]) {
+    /**
+     * To output a variable in a special font, we need to map its character 
+     * codes to another unicode range. This way can use blackboard (double bold), 
+     * calligraphic, or fraktur fonts.
+     * 
+     * When a command for changing font is encountered, we push a new character
+     * table to the stack.
+     */
+    pushCharTable(table: CharTable) {
         this.charTables.push(table)
     }
-
-    popTable() {
+    /**
+     * When the scope for the new font closes, we pop the topmost table from the
+     * stack.
+     */
+    popCharTable() {
         this.charTables.pop()
     }
-
-    table(): string[] | undefined {
+    /**
+     * Return the current character table or `undefined`, if the stack is empty.
+     */
+    charTable(): CharTable | undefined {
         return this.charTables[this.charTables.length - 1]
     }
 }
-
+/**
+ * ## Character Tables
+ * 
+ * The available character tables are defined next. Here are some samples of
+ * what character sets are available. 
+ * 
+ * - Blackboard command `bbb"AaBbCc"` yields: 
+ *   <math display="inline"><mstyle displaystyle="true"><mtext>𝔸𝕒𝔹𝕓ℂ𝕔</mtext></mstyle></math>
+ * - Calligraphic command `cc"AaBbCc"` yields: 
+ *   <math display="inline"><mstyle displaystyle="true"><mtext>𝒜𝒶ℬ𝒷𝒞𝒸</mtext></mstyle></math>
+ * - Fraktur command `fr"AaBbCc"` yields: 
+ *   <math display="inline"><mstyle displaystyle="true"><mtext>𝔄𝔞𝔅𝔟ℭ𝔠</mtext></mstyle></math>
+ * 
+ * The tables contain just upper and lower case latin alphabets. No other 
+ * characters are transformed. The first one is for calligraphic characters.
+ */
 let calTable = ["\uD835\uDC9C", "\u212C", "\uD835\uDC9E", "\uD835\uDC9F", "\u2130", 
     "\u2131", "\uD835\uDCA2", "\u210B", "\u2110", "\uD835\uDCA5", "\uD835\uDCA6", 
     "\u2112", "\u2133", "\uD835\uDCA9", "\uD835\uDCAA", "\uD835\uDCAB", 
@@ -101,7 +166,9 @@ let calTable = ["\uD835\uDC9C", "\u212C", "\uD835\uDC9E", "\uD835\uDC9F", "\u213
     "\uD835\uDCC7", "\uD835\uDCC8", "\uD835\uDCC9", "\uD835\uDCCA", 
     "\uD835\uDCCB", "\uD835\uDCCC", "\uD835\uDCCD", "\uD835\uDCCE", 
     "\uD835\uDCCF"]
-
+/**
+ * This contains fraktur characters.
+ */
 let frkTable = ["\uD835\uDD04", "\uD835\uDD05", "\u212D", "\uD835\uDD07", 
     "\uD835\uDD08", "\uD835\uDD09", "\uD835\uDD0A", "\u210C", "\u2111", 
     "\uD835\uDD0D", "\uD835\uDD0E", "\uD835\uDD0F", "\uD835\uDD10", 
@@ -115,7 +182,9 @@ let frkTable = ["\uD835\uDD04", "\uD835\uDD05", "\u212D", "\uD835\uDD07",
     "\uD835\uDD2F", "\uD835\uDD30", "\uD835\uDD31", "\uD835\uDD32", 
     "\uD835\uDD33", "\uD835\uDD34", "\uD835\uDD35", "\uD835\uDD36", 
     "\uD835\uDD37"];
-
+/**
+ * And finally the blackboard characters.
+ */
 let bbbTable = ["\uD835\uDD38", "\uD835\uDD39", "\u2102", "\uD835\uDD3B", 
     "\uD835\uDD3C", "\uD835\uDD3D", "\uD835\uDD3E", "\u210D", "\uD835\uDD40", 
     "\uD835\uDD41", "\uD835\uDD42", "\uD835\uDD43", "\uD835\uDD44", "\u2115", 
@@ -128,30 +197,11 @@ let bbbTable = ["\uD835\uDD38", "\uD835\uDD39", "\u2102", "\uD835\uDD3B",
     "\uD835\uDD61", "\uD835\uDD62", "\uD835\uDD63", "\uD835\uDD64", 
     "\uD835\uDD65", "\uD835\uDD66", "\uD835\uDD67", "\uD835\uDD68", 
     "\uD835\uDD69", "\uD835\uDD6A", "\uD835\uDD6B"];
-
-type Parser = (scanner: Scanner) => string
-
-enum SymbolKind {
-    Default,
-    UnderOver,
-    LeftBracket,
-    RightBracket,
-    MatrixLeftBracket,
-    MatrixRightBracket,
-    MatrixCellSep,    
-    MatrixRowSep,    
-    Eof
-}
-
-interface Symbol {
-    kind: SymbolKind
-    input: string
-    parser: Parser
-}
-
-type SymbolTable = { [firstLetter: string]: Symbol[] }
-
-function convertText(text: string, table?: string[]): string {
+/**
+ * Now we can define a function that converts a string using a specified
+ * character table. If none is given, we return the same text back.
+ */
+function convertText(text: string, table?: CharTable): string {
     if (!table)
         return text
     let res = ""
@@ -163,16 +213,75 @@ function convertText(text: string, table?: string[]): string {
     }
     return res
 }
-
+/**
+ * ## Parser
+ * 
+ * The type for parser is simple: a function that takes a scanner and returns
+ * a string. In practice, parser returns the MathML fragment corresponding to
+ * the MathML expression that the scanner is pointing to.
+ */
+type Parser = (scanner: Scanner) => string
+/**
+ * ## Symbols
+ * 
+ * Symbols are objects returned by the scanner. Each symbol has a `kind` 
+ * attribute. `Default` symbols are not affecting syntax rules, they usually
+ * just transform a symbol directly to a corresponding MathML fragment. Other
+ * symbol kinds are used when parser needs to do some special processing.
+ */
+enum SymbolKind {
+    Default,
+    UnderOver,
+    LeftBracket,
+    RightBracket,
+    MatrixLeftBracket,
+    MatrixRightBracket,
+    MatrixCellSep,    
+    MatrixRowSep,    
+    Eof
+}
+/**
+ * In addition to the kind, a symbol contains the input string corresponding to
+ * the symbol, and the parser which transforms the symbol to MathML.
+ */
+interface Symbol {
+    kind: SymbolKind
+    input: string
+    parser: Parser
+}
+/**
+ * Symbol table contains all symbols. It's key is the first character of a
+ * symbol and value is a list of symbols starting with that character. The list 
+ * is sorted in descending order according to symbols' lengths. So, the longest 
+ * symbols appear first and the shortest last. This makes finding the symbol 
+ * matching the current input more efficient (see `Scanner.peekSymbol` method 
+ * above).
+ */
+type SymbolTable = { [firstLetter: string]: Symbol[] }
+/**
+ * ### Text
+ * 
+ * Now we can define a bunch of helper functions that create symbols of various
+ * kinds. The first one is used for parsing regular text strings inside 
+ * equations. These are rendered inside `<mtext>` element in normal style and 
+ * not as _italics_.
+ * 
+ * We need to do the character translation for the text using the current table.
+ */
 function text(input: string): Symbol {
     return {
         kind: SymbolKind.Default,
         input,
         parser: inp => /*html*/`<mtext>${
-            convertText(input, inp.table())}</mtext>`
+            convertText(input, inp.charTable())}</mtext>`
     }
 }
-
+/**
+ * ### Numbers
+ * 
+ * Numbers are recognized by the scanner and translated simply to `<mn>` 
+ * elements.
+ */
 function number(input: string): Symbol {
     return {
         kind: SymbolKind.Default,
@@ -180,7 +289,13 @@ function number(input: string): Symbol {
         parser: () => /*html*/`<mn>${input}</mn>`
     }
 }
-
+/**
+ * ### Errors
+ * 
+ * Error symbol is returned when the input is invalid. The error or unrecognized
+ * symbol is put into `<merror>` element which renders it usually in red and
+ * yellow box.
+ */
 function error(msg: string): Symbol {
     return { 
         kind: SymbolKind.Default, 
@@ -188,7 +303,13 @@ function error(msg: string): Symbol {
         parser: () => /*html*/`<merror><mtext>${msg}</mtext></merror>` 
     }
 }
-
+/**
+ * ### End of Input
+ * 
+ * When input string is exhausted we return an `eof` symbol. It has a special
+ * kind that terminates the expression parsing rules. The parser itself returns 
+ * no output.
+ */
 function eof(): Symbol {
     return { 
         kind: SymbolKind.Eof, 
@@ -196,16 +317,26 @@ function eof(): Symbol {
         parser: () => ""
     }
 }
-
+/**
+ * ### Identifiers
+ * 
+ * Variables or identifiers are embedded in `<mi>` element by the parser. Here
+ * we need to also convert the characters, if a font command is in effect. The
+ * function below can be used for any input and output.
+ */
 function ident(input: string, output = input): Symbol {
     return { 
         kind: SymbolKind.Default, 
         input, 
         parser: scanner => /*html*/`<mi>${
-            convertText(output, scanner.table())}</mi>` 
+            convertText(output, scanner.charTable())}</mi>` 
     }
 }
-
+/**
+ * ### Operators
+ * 
+ * Simple operators are enclosed in `<mo>` elements.
+ */
 function oper(input: string, output: string): Symbol {
     return { 
         kind: SymbolKind.Default, 
@@ -213,7 +344,11 @@ function oper(input: string, output: string): Symbol {
         parser: () => /*html*/`<mo>${output}</mo>` 
     }
 }
-
+/**
+ * Some operators such as `and`, `or`, or `mod` are rendered as "normal" text.
+ * These we put into `<mtext>` element  inside a `<mrow>` element, and insert 
+ * leading and trailing spaces.
+ */
 function textOper(input: string, output = input): Symbol {
     return { 
         kind: SymbolKind.Default, 
@@ -222,7 +357,14 @@ function textOper(input: string, output = input): Symbol {
             }</mtext><mspace width="1ex"/></mrow>` 
     }
 }
-
+/**
+ * ### Brackets
+ * 
+ * Left bracket symbols such as `(`, `[`, `{` are returned by this function.
+ * Since left brackets also trigger expression parsing rules, we give them a 
+ * special kind. Note that a bracket can be also invisible. In that case, the
+ * `output` argument is undefined.
+ */
 function leftBracket(input: string, output?: string): Symbol {
     return {
         kind: SymbolKind.LeftBracket,
@@ -232,7 +374,10 @@ function leftBracket(input: string, output?: string): Symbol {
             () => ""
     }
 }
-
+/**
+ * Right brackets have their own kind as they terminate expression parsing. 
+ * Also right brackets can be invisible.
+ */
 function rightBracket(input: string, output?: string): Symbol {
     return {
         kind: SymbolKind.RightBracket,
@@ -242,14 +387,37 @@ function rightBracket(input: string, output?: string): Symbol {
             () => ""
     }
 }
-
+/**
+ * ### Symbols with One Argument
+ * 
+ * There are a lot of AsciiMath commands that take one argument. We call them
+ * _unary_ symbols. The output generated for these commands might vary quite a 
+ * lot. Thus we need many parser variants for unary symbols.
+ * 
+ * The simplest variant first parses the argument by invoking the `sexpr` rule, 
+ * and then returns the operator and argument sequentally inside `<mrow>` 
+ * element. This parser can be used for symbols like `sin` and `log`.
+ */
 function unaryParser(oper: string): Parser {
     return scanner => {
         let arg = sexprParser(scanner)
         return /*html*/`<mrow>${oper}${arg}</mrow>`
     }
 }
-
+/**
+ * The corresponding helper function for creating the symbol.
+ */
+function unary(input: string, oper = input): Symbol {
+    return { 
+        kind: SymbolKind.Default, 
+        input, 
+        parser: unaryParser(/*html*/`<mo>${oper}</mo>`) 
+    }
+}
+/**
+ * The second variant embeds the argument inside a specidied MathML tag. This
+ * is used for parsing square roots or text strings.
+ */
 function unaryEmbedParser(tag: string): Parser {
     return scanner => {
         let arg = sexprParser(scanner)
@@ -257,6 +425,18 @@ function unaryEmbedParser(tag: string): Parser {
     }
 }
 
+function unaryEmbed(input: string, tag: string): Symbol {
+    return { 
+        kind: SymbolKind.Default, 
+        input, 
+        parser: unaryEmbedParser(tag)
+    }
+}
+/**
+ * The third variant embeds the argument into a speciefied tag with another
+ * hard-coded argument that is given as a parameter to the function. This is
+ * used with commands that put accents under or over a symbol. 
+ */
 function unaryEmbedWithParser(tag: string, arg2: string): Parser {
     return scanner => {
         let arg1 = sexprParser(scanner)
@@ -264,6 +444,17 @@ function unaryEmbedWithParser(tag: string, arg2: string): Parser {
     }
 }
 
+function unaryUnderOver(input: string, tag: string, arg2: string): Symbol {
+    return { 
+        kind: SymbolKind.UnderOver, 
+        input, 
+        parser: unaryEmbedWithParser(tag, /*html*/`<mo>${arg2}</mo>`) 
+    }
+}
+/**
+ * The fourth variant surrounds the argument with specified left and right
+ * bracket symbols. It's used with commands such as `abs` or `floor`.
+ */
 function unarySurroundParser(left: string, right: string): Parser {
     return scanner => {
         let arg = sexprParser(scanner)
@@ -271,6 +462,18 @@ function unarySurroundParser(left: string, right: string): Parser {
     }
 }
 
+function unarySurround(input: string, left: string, right: string): Symbol {
+    return { 
+        kind: SymbolKind.Default, 
+        input, 
+        parser: unarySurroundParser(/*html*/`<mo>${left}</mo>`, 
+            /*html*/`<mo>${right}</mo>`) 
+    }
+}
+/**
+ * The fifth version embeds the argument inside a specified tag, and also adds
+ * a specified attribute to the tag.
+ */
 function unaryAttrParser(tag: string, attr: string): Parser {
     return scanner => {
         let arg = sexprParser(scanner)
@@ -278,15 +481,41 @@ function unaryAttrParser(tag: string, attr: string): Parser {
     }
 }
 
+function unaryAttr(input: string, tag: string, attr: string): Symbol {
+    return { 
+        kind: SymbolKind.Default, 
+        input, 
+        parser: unaryAttrParser(tag, attr) 
+    }
+}
+/**
+ * The sixth and last variant is used with math font commands. We will need to
+ * specify the character table which we switch on while parsing the argument.
+ */
 function unaryCharTableParser(table: string[]): Parser {
     return scanner => {
-        scanner.pushTable(table)
+        scanner.pushCharTable(table)
         let res = sexprParser(scanner)
-        scanner.popTable()
+        scanner.popCharTable()
         return res
     }
 }
 
+function unaryCharTable(input: string, table: string[]): Symbol {
+    return { 
+        kind: SymbolKind.Default, 
+        input, 
+        parser: unaryCharTableParser(table)
+    }
+}
+/**
+ * ### Symbols with Two Arguments
+ * 
+ * Some AsciiMath commands take two arguments. We call them _binary_ symbols,
+ * and parse the additional argument before returning the result. Luckily, there
+ * are only two variants for binary symbols. The first one is analogous to 
+ * `unaryEmbedParser`.
+ */
 function binaryEmbedParser(tag: string): Parser {
     return scanner => {
         let arg1 = sexprParser(scanner)
@@ -295,6 +524,19 @@ function binaryEmbedParser(tag: string): Parser {
     }
 }
 
+function binaryEmbed(input: string, tag: string): Symbol {
+    return { 
+        kind: SymbolKind.Default,
+        input, 
+        parser: binaryEmbedParser(tag)
+    }
+}
+/**
+ * The second variant is analogous to `unaryAttrParser` but instead of getting
+ * the attribute as hard-coded argument, we read it's value from the input 
+ * string. The value of the argument can theoretically be any recognized symbol,
+ * but in practice it almost always is a text symbol.
+ */
 function binaryAttrParser(tag: string, attr: string): Parser {
     return scanner => {
         let arg1 = scanner.nextSymbol().input
@@ -303,6 +545,52 @@ function binaryAttrParser(tag: string, attr: string): Parser {
     }
 }
 
+function binaryAttr(input: string, tag: string, attr: string): Symbol {
+    return { 
+        kind: SymbolKind.Default, 
+        input, 
+        parser: binaryAttrParser(tag, attr) 
+    }
+}
+/**
+ * ## Grammar
+ * 
+ * Now that we have tools to parse the terminals of the AsciiMath syntax, we can
+ * define the more complicated syntax rules for nonterminals. The whole grammar
+ * is shown in an abbrevieated format below.
+ * ```
+ * v ::= [A-Za-z] | greek letters | numbers | other constant symbols
+ * u ::= sqrt | text | bb | other unary symbols for font commands
+ * b ::= frac | root | stackrel | other binary symbols
+ * l ::= ( | [ | { | (: | {: | other left brackets
+ * r ::= ) | ] | } | :) | :} | other right brackets
+ * S ::= v | lEr | uS | bSS             Simple expression
+ * I ::= S_S | S^S | S_S^S | S          Intermediate expression
+ * E ::= IE | I/I                       Expression
+ * ```
+ * 
+ * ### Simple Expressions
+ * 
+ * We already defined parsers for rules `v`, `u`, `b`, `l`, and `r`. So now we
+ * need a parser for the `S` nonterminals which stands for "simple expression".
+ * The parser for it is shown below. It returns the parsed expression and the
+ * topmost (root) symbol of the expression parse tree. This is needed by the
+ * `I` rule for determining whether subscripts and superscripts are shown 
+ * normally, or under and over the expression.
+ * 
+ * We don't have to check whether a symbol is unary or binary when parsing the
+ * `S` rule. Unary and binary symbols handle their arguments inside their 
+ * parsers. We only need to check whether the current symbol is a left bracket.
+ * If so, we invoke the `E` rule by calling the `exprParser`.
+ * 
+ * The special case is when there are no symbols between brackets. Technically,
+ * that case is not supported by the grammar presented above, but in practice
+ * it's an easy thing to handle; just peek if the next symbol is right bracket
+ * and omit the call to `exprParser` in that case.
+ * 
+ * However, we need to check whether the right bracket is missing and report an
+ * error then.
+ */
 function parseSExpr(scanner: Scanner): [string, Symbol] {
     let sym = scanner.nextSymbol()
     if (sym.kind == SymbolKind.LeftBracket) {
@@ -317,11 +605,23 @@ function parseSExpr(scanner: Scanner): [string, Symbol] {
     }
     return [sym.parser(scanner), sym]
 }
-
+/**
+ * This variant conforms to the Parser type signature and can be used when the
+ * symbol is not needed.
+ */
 function sexprParser(scanner: Scanner): string {
     return parseSExpr(scanner)[0]
 }
-
+/**
+ * ### Intermediate Expressions
+ * 
+ * The `I` rule handles subscripts and superscripts. Once we parsed a simple
+ * expression, we need to check whether the next symbol is `_` or `^`. If either
+ * is true, we parse the subscript and/or superscript and return correct MathML
+ * element based on kind of the base symbol. If the kind is `UnderOver` we use
+ * <munderover> element (or its variant), otherwise we enclose the expressions 
+ * in `<msubsup>` element.
+ */
 function iexprParser(scanner: Scanner): string {
     let [res, sym] = parseSExpr(scanner)
     let sub: string | undefined
@@ -347,11 +647,22 @@ function iexprParser(scanner: Scanner): string {
             sup ? /*html*/`<msup>${res}${sup}</msup>` :
             res
 }
-
+/**
+ * ### Expressions
+ * 
+ * The `E` rule is the main parsing rule for AsciiMath expressions. It parses
+ * intermediate expressions in a sequence and also handles division operator.
+ * The parser continues as long as any of the symbols listed in the
+ * `terminators` list is not encountered. When that happens, we return the
+ * expression to the caller.
+ */
 const terminators = [ SymbolKind.Eof, SymbolKind.RightBracket, 
     SymbolKind.MatrixCellSep, SymbolKind.MatrixRowSep, 
     SymbolKind.MatrixRightBracket ]
-
+/**
+ * We need to check after each time `iexprParser` is called whether the next
+ * symbol is a terminator. That's why it's done in two places inside the loop.
+ */
 function exprParser(scanner: Scanner): string {
     let res = ""
     while (true) {
@@ -414,71 +725,6 @@ function underOverOper(input: string, oper = input): Symbol {
     }
 }
 
-function unary(input: string, oper = input): Symbol {
-    return { 
-        kind: SymbolKind.Default, 
-        input, 
-        parser: unaryParser(/*html*/`<mo>${oper}</mo>`) 
-    }
-}
-
-function unaryEmbed(input: string, tag: string): Symbol {
-    return { 
-        kind: SymbolKind.Default, 
-        input, 
-        parser: unaryEmbedParser(tag)
-    }
-}
-
-function unaryUnderOver(input: string, tag: string, arg2: string): Symbol {
-    return { 
-        kind: SymbolKind.UnderOver, 
-        input, 
-        parser: unaryEmbedWithParser(tag, /*html*/`<mo>${arg2}</mo>`) 
-    }
-}
-
-function unarySurround(input: string, left: string, right: string): Symbol {
-    return { 
-        kind: SymbolKind.Default, 
-        input, 
-        parser: unarySurroundParser(/*html*/`<mo>${left}</mo>`, 
-            /*html*/`<mo>${right}</mo>`) 
-    }
-}
-
-function unaryAttr(input: string, tag: string, attr: string): Symbol {
-    return { 
-        kind: SymbolKind.Default, 
-        input, 
-        parser: unaryAttrParser(tag, attr) 
-    }
-}
-
-function unaryCharTable(input: string, table: string[]): Symbol {
-    return { 
-        kind: SymbolKind.Default, 
-        input, 
-        parser: unaryCharTableParser(table)
-    }
-}
-
-function binaryEmbed(input: string, tag: string): Symbol {
-    return { 
-        kind: SymbolKind.Default,
-        input, 
-        parser: binaryEmbedParser(tag)
-    }
-}
-
-function binaryAttr(input: string, tag: string, attr: string): Symbol {
-    return { 
-        kind: SymbolKind.Default, 
-        input, 
-        parser: binaryAttrParser(tag, attr) 
-    }
-}
-
 function leftMatrix(input: string, output?: string): Symbol {
     return {
         kind: SymbolKind.MatrixLeftBracket,
@@ -519,7 +765,7 @@ const symbols: SymbolTable = {
         ident("alpha", "\u03B1"),
         oper("aleph", "\u2135"),
         unarySurround("abs", "|", "|"),
-        textOper("and", "and"),
+        textOper("and"),
         ident("a")
     ],
     A: [
@@ -623,7 +869,7 @@ const symbols: SymbolTable = {
         ident("iota", "\u03B9"),
         oper("int", "\u222B"),
         oper("in", "\u2208"),
-        textOper("if", "if"),
+        textOper("if"),
         binaryAttr("id", "mrow", "id"),
         ident("i")
     ],
@@ -689,7 +935,7 @@ const symbols: SymbolTable = {
         unaryUnderOver("obrace", "mover", "\u23DE"),
         ident("omega", "\u03C9"),
         oper("oint", "\u222E"),
-        textOper("or", "or"),
+        textOper("or"),
         oper("o+", "\u2295"),
         oper("ox", "\u2295"),
         oper("o.", "\u2299"),
