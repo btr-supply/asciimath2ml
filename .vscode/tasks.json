@@ -3,21 +3,21 @@
 	"tasks": [
 		{
 			"type": "npm",
-			"script": "lits-serve",
+			"script": "serve",
 			"problemMatcher": [
 				"$tsc-watch"
 			],
-			"label": "npm: lits-serve",
+			"label": "npm: serve",
 			"detail": "lits --serve --outDir .devout",
 			"isBackground": true
 		},
 		{
 			"type": "npm",
-			"script": "gendocs",
+			"script": "build",
 			"problemMatcher": [
 				"$tsc"
 			],
-			"label": "npm: gendocs",
+			"label": "npm: build",
 			"detail": "lits --outDir docs --deployMode prod"
 		}
 	]

@@ -6,12 +6,12 @@
     "src/asciimath-editor": {
         "url": "src/asciimath-editor.html",
         "dependencies": [
-            "litscript/src/custom-elem",
+            "litscript/lib/src/custom-elem",
             "src/index",
             "src/asciimath-editor.css"
         ]
     },
-    "litscript/src/custom-elem": {
+    "litscript/lib/src/custom-elem": {
         "dependencies": []
     },
     "src/asciimath-editor.css": {

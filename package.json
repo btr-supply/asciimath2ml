@@ -1,12 +1,17 @@
 {
   "name": "asciimath2ml",
   "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/johtela/asciimath2ml.git"
+  },
   "description": "AsciiMath to MathML converter",
   "main": "lib/index.js",
   "scripts": {
+    "build": "lits --outDir docs --deployMode prod",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lits-serve": "lits --serve --outDir .devout",
-    "gendocs": "lits --outDir docs --deployMode prod"
+    "serve": "lits --serve --outDir .devout",
+    "postversion": "git push && git push --tags"
   },
   "keywords": [
     "asciimath",
