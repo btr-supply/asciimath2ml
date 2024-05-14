@@ -686,7 +686,7 @@ function exprParser(scanner: Scanner): string {
         if (next.input == "/") {
             scanner.pos = pos
             let quot = iexprParser(scanner)
-            exp = /*html*/`$<mfrac>${exp}${quot}</mfrac>`;
+            exp = /*html*/`<mfrac>${exp}${quot}</mfrac>`;
             [next, ] = scanner.peekSymbol()
             if (terminators.includes(next.kind))
                 return res + exp
