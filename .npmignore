@@ -1,0 +1,6 @@
+.devout/
+.vscode/
+docs/
+src
+litsconfig.json
+tsconfig.tsbuildinfo

@@ -5,7 +5,8 @@
   "main": "lib/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lits-serve": "lits --serve --outDir .devout"
+    "lits-serve": "lits --serve --outDir .devout",
+    "gendocs": "lits --outDir docs --deployMode prod"
   },
   "keywords": [
     "asciimath",
@@ -14,6 +15,6 @@
   "author": "Tommi Johtela",
   "license": "MPL-2.0",
   "devDependencies": {
-    "litscript": "file:../litscript"
+    "litscript": "^2.1.0"
   }
 }

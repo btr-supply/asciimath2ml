@@ -10,7 +10,7 @@
  * [web component]: https://developer.mozilla.org/en-US/docs/Web/API/Web_Components
  * [LiTScript]: https://johtela.github.io/litscript/
  */
-import * as ce from 'litscript/src/custom-elem'
+import * as ce from 'litscript/lib/src/custom-elem'
 import { asciiToMathML } from '.'
 import "./asciimath-editor.css"
 /**

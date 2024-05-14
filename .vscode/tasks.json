@@ -10,6 +10,15 @@
 			"label": "npm: lits-serve",
 			"detail": "lits --serve --outDir .devout",
 			"isBackground": true
+		},
+		{
+			"type": "npm",
+			"script": "gendocs",
+			"problemMatcher": [
+				"$tsc"
+			],
+			"label": "npm: gendocs",
+			"detail": "lits --outDir docs --deployMode prod"
 		}
 	]
 }

@@ -1,0 +1,20 @@
+{
+    "src/index": {
+        "url": "src/index.html",
+        "dependencies": []
+    },
+    "src/asciimath-editor": {
+        "url": "src/asciimath-editor.html",
+        "dependencies": [
+            "litscript/src/custom-elem",
+            "src/index",
+            "src/asciimath-editor.css"
+        ]
+    },
+    "litscript/src/custom-elem": {
+        "dependencies": []
+    },
+    "src/asciimath-editor.css": {
+        "dependencies": []
+    }
+}

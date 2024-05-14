@@ -1,0 +1,493 @@
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>
+            AsciiMath2ML - Editor
+        </title>
+        <link rel="icon" type="image/icon" href="../images/favicon.svg" />
+        <link rel="stylesheet" href="../dist/normal.css" />
+<link rel="stylesheet" 
+                    href="../dist/theme.css" />
+        
+    </head>
+    <body data-syntax-highlight="son-of-obsidian"
+        data-theme="purple-rain">
+        
+        <div id="navbar">
+            
+    <div class="navmenu ">
+        
+    <div class="navitem " >
+        <a class="title enabled" href="../index.html" >
+            
+            <span>AsciiMath2ML</span>
+        </a>
+        
+    </div>
+    <div class="navitem " >
+        <a class="enabled" href="https://www.npmjs.com/package/asciimath2ml" >
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-npm" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M1 8h22v7h-12v2h-4v-2h-6z" />
+            <path d="M7 8v7" />
+            <path d="M14 8v7" />
+            <path d="M17 11v4" />
+            <path d="M4 11v4" />
+            <path d="M11 11v1" />
+            <path d="M20 11v4" />
+        </svg>
+            <span>Download</span>
+        </a>
+        
+    </div>
+    <div class="navitem " >
+        <a class="enabled" href="https://github.com/johtela/asciimath2ml" >
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+        </svg>
+            <span>GitHub</span>
+        </a>
+        
+    </div>
+    <div class="navitem " >
+        <a class="enabled" href="../license.html" >
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-license" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M15 21h-9a3 3 0 0 1 -3 -3v-1h10v2a2 2 0 0 0 4 0v-14a2 2 0 1 1 2 2h-2m2 -4h-11a3 3 0 0 0 -3 3v11" />
+            <path d="M9 7l4 0" />
+            <path d="M9 11l4 0" />
+        </svg>
+            <span>License</span>
+        </a>
+        
+    </div>
+    <div class="navitem " >
+        <a   >
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-caret-down" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M6 10l6 6l6 -6h-12" />
+        </svg>
+            <span>Syntax Highlight</span>
+        </a>
+        
+    <div class="navmenu toggle">
+        
+    <div class="navitem " id="coding-horror">
+        <a   onclick="document.body.syntaxHighlight('coding-horror')">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-palette" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M12 21a9 9 0 0 1 0 -18c4.97 0 9 3.582 9 8c0 1.06 -.474 2.078 -1.318 2.828c-.844 .75 -1.989 1.172 -3.182 1.172h-2.5a2 2 0 0 0 -1 3.75a1.3 1.3 0 0 1 -1 2.25" />
+            <path d="M8.5 10.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+            <path d="M12.5 7.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+            <path d="M16.5 10.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+        </svg>
+            <span>Coding Horror</span>
+        </a>
+        
+    </div>
+    <div class="navitem " id="monokai">
+        <a   onclick="document.body.syntaxHighlight('monokai')">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-palette" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M12 21a9 9 0 0 1 0 -18c4.97 0 9 3.582 9 8c0 1.06 -.474 2.078 -1.318 2.828c-.844 .75 -1.989 1.172 -3.182 1.172h-2.5a2 2 0 0 0 -1 3.75a1.3 1.3 0 0 1 -1 2.25" />
+            <path d="M8.5 10.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+            <path d="M12.5 7.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+            <path d="M16.5 10.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+        </svg>
+            <span>Monokai</span>
+        </a>
+        
+    </div>
+    <div class="navitem " id="solarized-light">
+        <a   onclick="document.body.syntaxHighlight('solarized-light')">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-palette" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M12 21a9 9 0 0 1 0 -18c4.97 0 9 3.582 9 8c0 1.06 -.474 2.078 -1.318 2.828c-.844 .75 -1.989 1.172 -3.182 1.172h-2.5a2 2 0 0 0 -1 3.75a1.3 1.3 0 0 1 -1 2.25" />
+            <path d="M8.5 10.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+            <path d="M12.5 7.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+            <path d="M16.5 10.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+        </svg>
+            <span>Solarized Light</span>
+        </a>
+        
+    </div>
+    <div class="navitem active" id="son-of-obsidian">
+        <a   onclick="document.body.syntaxHighlight('son-of-obsidian')">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-palette" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M12 21a9 9 0 0 1 0 -18c4.97 0 9 3.582 9 8c0 1.06 -.474 2.078 -1.318 2.828c-.844 .75 -1.989 1.172 -3.182 1.172h-2.5a2 2 0 0 0 -1 3.75a1.3 1.3 0 0 1 -1 2.25" />
+            <path d="M8.5 10.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+            <path d="M12.5 7.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+            <path d="M16.5 10.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+        </svg>
+            <span>Son of Obsidian</span>
+        </a>
+        
+    </div>
+    </div>
+    </div>
+    <div class="navitem " >
+        <a   >
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-caret-down" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M6 10l6 6l6 -6h-12" />
+        </svg>
+            <span>Theme</span>
+        </a>
+        
+    <div class="navmenu toggle">
+        
+    <div class="navitem " id="blueberry">
+        <a   onclick="document.body.theme('blueberry')">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-paint" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M5 3m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v2a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z" />
+            <path d="M19 6h1a2 2 0 0 1 2 2a5 5 0 0 1 -5 5l-5 0v2" />
+            <path d="M10 15m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z" />
+        </svg>
+            <span>Blueberry</span>
+        </a>
+        
+    </div>
+    <div class="navitem " id="book-cover">
+        <a   onclick="document.body.theme('book-cover')">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-paint" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M5 3m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v2a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z" />
+            <path d="M19 6h1a2 2 0 0 1 2 2a5 5 0 0 1 -5 5l-5 0v2" />
+            <path d="M10 15m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z" />
+        </svg>
+            <span>Book Cover</span>
+        </a>
+        
+    </div>
+    <div class="navitem " id="brownie">
+        <a   onclick="document.body.theme('brownie')">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-paint" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M5 3m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v2a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z" />
+            <path d="M19 6h1a2 2 0 0 1 2 2a5 5 0 0 1 -5 5l-5 0v2" />
+            <path d="M10 15m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z" />
+        </svg>
+            <span>Brownie</span>
+        </a>
+        
+    </div>
+    <div class="navitem " id="camouflage">
+        <a   onclick="document.body.theme('camouflage')">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-paint" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M5 3m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v2a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z" />
+            <path d="M19 6h1a2 2 0 0 1 2 2a5 5 0 0 1 -5 5l-5 0v2" />
+            <path d="M10 15m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z" />
+        </svg>
+            <span>Camouflage</span>
+        </a>
+        
+    </div>
+    <div class="navitem " id="chocolate">
+        <a   onclick="document.body.theme('chocolate')">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-paint" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M5 3m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v2a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z" />
+            <path d="M19 6h1a2 2 0 0 1 2 2a5 5 0 0 1 -5 5l-5 0v2" />
+            <path d="M10 15m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z" />
+        </svg>
+            <span>Chocolate</span>
+        </a>
+        
+    </div>
+    <div class="navitem " id="greyhound">
+        <a   onclick="document.body.theme('greyhound')">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-paint" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M5 3m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v2a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z" />
+            <path d="M19 6h1a2 2 0 0 1 2 2a5 5 0 0 1 -5 5l-5 0v2" />
+            <path d="M10 15m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z" />
+        </svg>
+            <span>Greyhound</span>
+        </a>
+        
+    </div>
+    <div class="navitem " id="ice-age">
+        <a   onclick="document.body.theme('ice-age')">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-paint" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M5 3m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v2a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z" />
+            <path d="M19 6h1a2 2 0 0 1 2 2a5 5 0 0 1 -5 5l-5 0v2" />
+            <path d="M10 15m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z" />
+        </svg>
+            <span>Ice Age</span>
+        </a>
+        
+    </div>
+    <div class="navitem " id="mustard">
+        <a   onclick="document.body.theme('mustard')">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-paint" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M5 3m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v2a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z" />
+            <path d="M19 6h1a2 2 0 0 1 2 2a5 5 0 0 1 -5 5l-5 0v2" />
+            <path d="M10 15m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z" />
+        </svg>
+            <span>Mustard</span>
+        </a>
+        
+    </div>
+    <div class="navitem " id="peachy">
+        <a   onclick="document.body.theme('peachy')">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-paint" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M5 3m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v2a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z" />
+            <path d="M19 6h1a2 2 0 0 1 2 2a5 5 0 0 1 -5 5l-5 0v2" />
+            <path d="M10 15m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z" />
+        </svg>
+            <span>Peachy</span>
+        </a>
+        
+    </div>
+    <div class="navitem " id="red-alert">
+        <a   onclick="document.body.theme('red-alert')">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-paint" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M5 3m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v2a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z" />
+            <path d="M19 6h1a2 2 0 0 1 2 2a5 5 0 0 1 -5 5l-5 0v2" />
+            <path d="M10 15m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z" />
+        </svg>
+            <span>Red Alert</span>
+        </a>
+        
+    </div>
+    <div class="navitem " id="ultra-violet">
+        <a   onclick="document.body.theme('ultra-violet')">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-paint" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M5 3m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v2a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z" />
+            <path d="M19 6h1a2 2 0 0 1 2 2a5 5 0 0 1 -5 5l-5 0v2" />
+            <path d="M10 15m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z" />
+        </svg>
+            <span>Ultra Violet</span>
+        </a>
+        
+    </div>
+    <div class="navitem " id="vintage">
+        <a   onclick="document.body.theme('vintage')">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-paint" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M5 3m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v2a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z" />
+            <path d="M19 6h1a2 2 0 0 1 2 2a5 5 0 0 1 -5 5l-5 0v2" />
+            <path d="M10 15m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z" />
+        </svg>
+            <span>Vintage</span>
+        </a>
+        
+    </div>
+    </div>
+    </div>
+    </div>
+            
+    <a class="hamburger">
+        <div class="bar1"></div>
+        <div class="bar2"></div>
+        <div class="bar3"></div>
+    </a>
+        </div>
+        
+        <div class="layout">
+            <div class="sidepane narrow-scrollbars">
+                
+        <div class="tocmenu">
+            <h3>Table of Contents</h3>
+            
+    <ul>
+        
+    <li>
+        <a href="../README.html"><span>👓</span><span data-toggle="tooltip" data-title="How to get started">
+            README
+        </span></a>
+    </li>
+    <li>
+        <a href="index.html"><span>🐣</span><span data-toggle="tooltip" data-title="How it's done">
+            Implementation
+        </span></a>
+    </li>
+    <li>
+        <a href="asciimath-editor.html" class="highlight"><span>✍️</span><span data-toggle="tooltip" data-title="Editor for testing equations">
+            Editor
+        </span></a>
+    </li>
+    <li>
+        <a href="../license.html"><span>📜</span><span data-toggle="tooltip" data-title="Legal stuff">
+            License
+        </span></a>
+    </li>
+    </ul>
+        </div>
+                <div class="toc-button"><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevrons-right" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2c3e50" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M7 7l5 5l-5 5" />
+            <path d="M13 7l5 5l-5 5" />
+        </svg></div>
+            </div>
+            
+        <div class="contentarea closepopups">
+            <h1 id="editor-for-testing-ascii-math-equations">Editor for Testing AsciiMath Equations</h1>
+<p>This simple <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Components">web component</a> allows typing AsciiMath equations and previews
+the generated MathML elements.</p>
+<p>We inherit the component from base class provided by <a href="https://johtela.github.io/litscript/">LiTScript</a>. It
+attaches the stylesheet we specify to the component.</p>
+<pre class="syntaxhighlight narrow-scrollbars"><code><span class="keyword">import</span> <span class="punctuation">*</span> <span class="keyword">as</span> <span id="464" data-toggle="tooltip" data-title="typeof ce">ce</span> <span class="keyword">from</span> <span class="string">&#039;litscript/src/custom-elem&#039;</span>
+<span class="keyword">import</span> <span class="punctuation">{</span> <span id="515" data-toggle="tooltip" data-title="(input: string, inline?: boolean) =&gt; string">asciiToMathML</span> <span class="punctuation">}</span> <span class="keyword">from</span> <span class="string">&#039;.&#039;</span>
+<span class="keyword">import</span> <span class="string">&quot;./asciimath-editor.css&quot;</span>
+</code></pre>
+<h2 id="component-structure">Component Structure</h2>
+<p>The structure of our component is defined in the <code>label</code> and <code>content</code>
+properties. Label is separate, because we must be able to change it's
+contents later or.</p>
+<pre class="syntaxhighlight narrow-scrollbars"><code><span class="keyword">export</span> <span class="keyword">class</span> <span id="573" class="typename" data-toggle="tooltip" data-title="AsciiMathEditor">AsciiMathEditor</span> <span class="keyword">extends</span> <a href="asciimath-editor.html#464"><span data-toggle="tooltip" data-title="typeof ce">ce</span></a><span class="punctuation">.</span><span class="typename" data-toggle="tooltip" data-title="typeof ce.StyledElement">StyledElement</span> <span class="punctuation">{</span>
+    <span class="keyword">private</span> <span id="845" data-toggle="tooltip" data-title="string">label</span> <span class="punctuation">=</span> <span class="comment">/*html*/</span>`
+            &lt;span class=&quot;label&quot;&gt;Preview&lt;/span&gt;
+    `
+    <span class="keyword">private</span> <span id="931" data-toggle="tooltip" data-title="string">content</span> <span class="punctuation">=</span> <span class="comment">/*html*/</span><span class="string">`
+        &lt;textarea name=&quot;input&quot; id=&quot;input&quot; rows=&quot;5&quot; cols=&quot;40&quot; spellcheck=&quot;false&quot;
+            placeholder=&quot;Enter AsciiMath Equation&quot;&gt;
+        &lt;/textarea&gt;
+        &lt;div id=&quot;preview&quot;&gt;
+            ${</span><span class="keyword">this</span><span class="punctuation">.</span><a href="asciimath-editor.html#845"><span data-toggle="tooltip" data-title="string">label</span></a><span class="string">}
+        &lt;/div&gt;
+    `</span>
+</code></pre>
+<h2 id="constructor-1">Constructor</h2>
+<p>We call the base constructor with the style sheet name we want to load.
+The <code>.css</code> extension is omitted.</p>
+<pre class="syntaxhighlight narrow-scrollbars"><code>    <span class="keyword">constructor</span><span class="punctuation">(</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="keyword">super</span><span class="punctuation">(</span><span class="string">&quot;asciimath-editor&quot;</span><span class="punctuation">)</span>
+    <span class="punctuation">}</span>
+</code></pre>
+<h2 id="getters">Getters</h2>
+<p>Get the input element inside the component.</p>
+<pre class="syntaxhighlight narrow-scrollbars"><code>    <span class="keyword">private</span> <span class="keyword">get</span> <span id="1431" class="member" data-toggle="tooltip" data-title="HTMLTextAreaElement">input</span><span class="punctuation">(</span><span class="punctuation">)</span><span class="punctuation">:</span> <span class="typename" data-toggle="tooltip" data-title="HTMLTextAreaElement">HTMLTextAreaElement</span> <span class="punctuation">{</span>
+        <span class="keyword">return</span> <span class="keyword">this</span><span class="punctuation">.</span><span data-toggle="tooltip" data-title="ShadowRoot | null">shadowRoot</span><span class="punctuation">!</span><span class="punctuation">.</span><span class="member" data-toggle="tooltip" data-title="(elementId: string) =&gt; HTMLElement | null">getElementById</span><span class="punctuation">(</span><span class="string">&quot;input&quot;</span><span class="punctuation">)</span> <span class="keyword">as</span> <span class="typename" data-toggle="tooltip" data-title="HTMLTextAreaElement">HTMLTextAreaElement</span>
+    <span class="punctuation">}</span>
+</code></pre>
+<p>Get the preview div inside the component.</p>
+<pre class="syntaxhighlight narrow-scrollbars"><code>    <span class="keyword">private</span> <span class="keyword">get</span> <span id="1664" class="member" data-toggle="tooltip" data-title="HTMLDivElement">preview</span><span class="punctuation">(</span><span class="punctuation">)</span><span class="punctuation">:</span> <span class="typename" data-toggle="tooltip" data-title="HTMLDivElement">HTMLDivElement</span> <span class="punctuation">{</span>
+        <span class="keyword">return</span> <span class="keyword">this</span><span class="punctuation">.</span><span data-toggle="tooltip" data-title="ShadowRoot | null">shadowRoot</span><span class="punctuation">!</span><span class="punctuation">.</span><span class="member" data-toggle="tooltip" data-title="(elementId: string) =&gt; HTMLElement | null">getElementById</span><span class="punctuation">(</span><span class="string">&quot;preview&quot;</span><span class="punctuation">)</span> <span class="keyword">as</span> <span class="typename" data-toggle="tooltip" data-title="HTMLDivElement">HTMLDivElement</span>
+    <span class="punctuation">}</span>
+</code></pre>
+<h2 id="update">Update</h2>
+<p>When the contents of the input element changes we update the preview in
+the method below. If there is no value for the input, we use the
+default preview contents. If we have a value, we:</p>
+<ol>
+<li>convert it to MathML by calling <code>asciiToMathML</code> function,</li>
+<li>set it as the inner content of the preview div,</li>
+<li>format the contents of the div by calling the <code>format</code> method, and</li>
+<li>add a <code>&lt;details&gt;</code> tag that shows the MathML verbatim inside the
+preview div.</li>
+</ol>
+<pre class="syntaxhighlight narrow-scrollbars"><code>    <span class="keyword">private</span> <span id="1861" class="member" data-toggle="tooltip" data-title="() =&gt; void">update</span><span class="punctuation">(</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="keyword">let</span> <span id="2471" data-toggle="tooltip" data-title="string">value</span> <span class="punctuation">=</span> <span class="keyword">this</span><span class="punctuation">.</span><a href="asciimath-editor.html#1431"><span class="member" data-toggle="tooltip" data-title="HTMLTextAreaElement">input</span></a><span class="punctuation">.</span><span data-toggle="tooltip" data-title="string">value</span>
+        <span class="keyword">let</span> <span id="2509" data-toggle="tooltip" data-title="HTMLDivElement">preview</span> <span class="punctuation">=</span> <span class="keyword">this</span><span class="punctuation">.</span><a href="asciimath-editor.html#1664"><span class="member" data-toggle="tooltip" data-title="HTMLDivElement">preview</span></a>
+        <span class="keyword">if</span> <span class="punctuation">(</span><span class="punctuation">!</span><a href="asciimath-editor.html#2471"><span data-toggle="tooltip" data-title="string">value</span></a><span class="punctuation">)</span>
+            <a href="asciimath-editor.html#2471"><span data-toggle="tooltip" data-title="string">value</span></a> <span class="punctuation">=</span> <span class="keyword">this</span><span class="punctuation">.</span><a href="asciimath-editor.html#845"><span data-toggle="tooltip" data-title="string">label</span></a>
+        <span class="keyword">else</span> <span class="punctuation">{</span>
+            <a href="asciimath-editor.html#2471"><span data-toggle="tooltip" data-title="string">value</span></a> <span class="punctuation">=</span> <a href="asciimath-editor.html#515"><span data-toggle="tooltip" data-title="(input: string, inline?: boolean) =&gt; string">asciiToMathML</span></a><span class="punctuation">(</span><a href="asciimath-editor.html#2471"><span data-toggle="tooltip" data-title="string">value</span></a><span class="punctuation">)</span>
+            <a href="asciimath-editor.html#2509"><span data-toggle="tooltip" data-title="HTMLDivElement">preview</span></a><span class="punctuation">.</span><span data-toggle="tooltip" data-title="string">innerHTML</span> <span class="punctuation">=</span> <a href="asciimath-editor.html#2471"><span data-toggle="tooltip" data-title="string">value</span></a>
+            <span class="keyword">this</span><span class="punctuation">.</span><a href="asciimath-editor.html#3869"><span class="member" data-toggle="tooltip" data-title="(node: Element, level: number) =&gt; Element">format</span></a><span class="punctuation">(</span><a href="asciimath-editor.html#2509"><span data-toggle="tooltip" data-title="HTMLDivElement">preview</span></a><span class="punctuation">,</span> <span class="number">0</span><span class="punctuation">)</span>
+            <a href="asciimath-editor.html#2471"><span data-toggle="tooltip" data-title="string">value</span></a> <span class="punctuation">=</span> <span class="comment">/*html*/</span><span class="string">`
+                ${</span><a href="asciimath-editor.html#2471"><span data-toggle="tooltip" data-title="string">value</span></a><span class="string">}
+                &lt;details&gt;
+                    &lt;summary&gt;Show MathML&lt;/summary&gt;
+                    &lt;xmp&gt;${</span><a href="asciimath-editor.html#2509"><span data-toggle="tooltip" data-title="HTMLDivElement">preview</span></a><span class="punctuation">.</span><span data-toggle="tooltip" data-title="string">innerHTML</span><span class="punctuation">.</span><span class="member" data-toggle="tooltip" data-title="() =&gt; string">trim</span><span class="punctuation">(</span><span class="punctuation">)</span><span class="string">}&lt;/xmp&gt;
+                &lt;/details&gt;
+            `</span>
+        <span class="punctuation">}</span>
+        <a href="asciimath-editor.html#2509"><span data-toggle="tooltip" data-title="HTMLDivElement">preview</span></a><span class="punctuation">.</span><span data-toggle="tooltip" data-title="string">innerHTML</span> <span class="punctuation">=</span> <a href="asciimath-editor.html#2471"><span data-toggle="tooltip" data-title="string">value</span></a> 
+    <span class="punctuation">}</span>
+</code></pre>
+<h2 id="component-connected">Component Connected</h2>
+<p>The methdod below is called when the component is added to the DOM. It
+initializes the component and assigns classes to component root element
+to make its styling easier.</p>
+<p>Then we read the inital value from the corresponding attribute, if it
+exist, assign it to the input element and update the preview. Last, we
+hook the input's <code>onchange</code> event to the <code>update</code> method.</p>
+<pre class="syntaxhighlight narrow-scrollbars"><code>    <span class="keyword">protected</span> <span id="3012" class="member" data-toggle="tooltip" data-title="() =&gt; void">connect</span><span class="punctuation">(</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="keyword">this</span><span class="punctuation">.</span><span data-toggle="tooltip" data-title="HTMLElement">body</span><span class="punctuation">.</span><span data-toggle="tooltip" data-title="string">innerHTML</span> <span class="punctuation">=</span> <span class="keyword">this</span><span class="punctuation">.</span><a href="asciimath-editor.html#931"><span data-toggle="tooltip" data-title="string">content</span></a>
+        <span class="keyword">this</span><span class="punctuation">.</span><span data-toggle="tooltip" data-title="HTMLElement">body</span><span class="punctuation">.</span><span data-toggle="tooltip" data-title="string">className</span> <span class="punctuation">=</span> <span class="string">&quot;body&quot;</span>
+        <span class="keyword">this</span><span class="punctuation">.</span><span data-toggle="tooltip" data-title="HTMLElement">body</span><span class="punctuation">.</span><span class="member" data-toggle="tooltip" data-title="(...nodes: (string | Node)[]) =&gt; void">append</span><span class="punctuation">(</span><span class="keyword">this</span><span class="punctuation">.</span><a href="asciimath-editor.html#1431"><span class="member" data-toggle="tooltip" data-title="HTMLTextAreaElement">input</span></a><span class="punctuation">,</span> <span class="keyword">this</span><span class="punctuation">.</span><a href="asciimath-editor.html#1664"><span class="member" data-toggle="tooltip" data-title="HTMLDivElement">preview</span></a><span class="punctuation">)</span>
+        <span class="keyword">let</span> <span id="3672" data-toggle="tooltip" data-title="string | null">initial</span> <span class="punctuation">=</span> <span class="keyword">this</span><span class="punctuation">.</span><span class="member" data-toggle="tooltip" data-title="(qualifiedName: string) =&gt; string | null">getAttribute</span><span class="punctuation">(</span><span class="string">&quot;value&quot;</span><span class="punctuation">)</span>
+        <span class="keyword">if</span> <span class="punctuation">(</span><a href="asciimath-editor.html#3672"><span data-toggle="tooltip" data-title="string | null">initial</span></a><span class="punctuation">)</span> <span class="punctuation">{</span>
+            <span class="keyword">this</span><span class="punctuation">.</span><a href="asciimath-editor.html#1431"><span class="member" data-toggle="tooltip" data-title="HTMLTextAreaElement">input</span></a><span class="punctuation">.</span><span data-toggle="tooltip" data-title="string">value</span> <span class="punctuation">=</span> <a href="asciimath-editor.html#3672"><span data-toggle="tooltip" data-title="string">initial</span></a>
+            <span class="keyword">this</span><span class="punctuation">.</span><a href="asciimath-editor.html#1861"><span class="member" data-toggle="tooltip" data-title="() =&gt; void">update</span></a><span class="punctuation">(</span><span class="punctuation">)</span>
+        <span class="punctuation">}</span>
+        <span class="keyword">this</span><span class="punctuation">.</span><a href="asciimath-editor.html#1431"><span class="member" data-toggle="tooltip" data-title="HTMLTextAreaElement">input</span></a><span class="punctuation">.</span><span data-toggle="tooltip" data-title="((this: GlobalEventHandlers, ev: Event) =&gt; any) | null">onchange</span> <span class="punctuation">=</span> <span class="punctuation">(</span><span class="punctuation">)</span> <span class="punctuation">=&gt;</span> <span class="keyword">this</span><span class="punctuation">.</span><a href="asciimath-editor.html#1861"><span class="member" data-toggle="tooltip" data-title="() =&gt; void">update</span></a><span class="punctuation">(</span><span class="punctuation">)</span>
+    <span class="punctuation">}</span>
+</code></pre>
+<h2 id="formatting-math-ml">Formatting MathML</h2>
+<p>The MathML produced by our converter does not contain any extra
+whitespace or formatting. This is intentional, to keep the result size
+as small as possible. However, when presenting the MathML to the user,
+it would be nice to have it correctly intended. This little helper copied
+from Stack Overflow does that. It adds line breaks and spaces before
+elements depeneding on how deep they are in the DOM tree. So, the value
+of the <code>innerHTML</code> property looks nicer when shown in the preview.</p>
+<pre class="syntaxhighlight narrow-scrollbars"><code>    <span class="keyword">private</span> <span id="3869" class="member" data-toggle="tooltip" data-title="(node: Element, level: number) =&gt; Element">format</span><span class="punctuation">(</span><span id="4492" data-toggle="tooltip" data-title="Element">node</span><span class="punctuation">:</span> <span class="typename" data-toggle="tooltip" data-title="Element">Element</span><span class="punctuation">,</span> <span id="4506" data-toggle="tooltip" data-title="number">level</span><span class="punctuation">:</span> <span class="keyword">number</span><span class="punctuation">)</span><span class="punctuation">:</span> <span class="typename" data-toggle="tooltip" data-title="Element">Element</span> <span class="punctuation">{</span>
+        <span class="keyword">let</span> <span id="4545" data-toggle="tooltip" data-title="string">indentBefore</span> <span class="punctuation">=</span> <span class="keyword">new</span> <span class="typename" data-toggle="tooltip" data-title="ArrayConstructor">Array</span><span class="punctuation">(</span><a href="asciimath-editor.html#4506"><span data-toggle="tooltip" data-title="number">level</span></a><span class="punctuation">++</span> <span class="punctuation">+</span> <span class="number">1</span><span class="punctuation">)</span><span class="punctuation">.</span><span class="member" data-toggle="tooltip" data-title="(separator?: string | undefined) =&gt; string">join</span><span class="punctuation">(</span><span class="string">&#039;  &#039;</span><span class="punctuation">)</span><span class="punctuation">,</span>
+            <span id="4595" data-toggle="tooltip" data-title="string">indentAfter</span>  <span class="punctuation">=</span> <span class="keyword">new</span> <span class="typename" data-toggle="tooltip" data-title="ArrayConstructor">Array</span><span class="punctuation">(</span><a href="asciimath-editor.html#4506"><span data-toggle="tooltip" data-title="number">level</span></a> <span class="punctuation">-</span> <span class="number">1</span><span class="punctuation">)</span><span class="punctuation">.</span><span class="member" data-toggle="tooltip" data-title="(separator?: string | undefined) =&gt; string">join</span><span class="punctuation">(</span><span class="string">&#039;  &#039;</span><span class="punctuation">)</span><span class="punctuation">,</span>
+            <span id="4656" data-toggle="tooltip" data-title="Text">textNode</span><span class="punctuation">:</span> <span class="typename" data-toggle="tooltip" data-title="Text">Text</span>
+        <span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword">var</span> <span id="4702" data-toggle="tooltip" data-title="number">i</span> <span class="punctuation">=</span> <span class="number">0</span><span class="punctuation">;</span> <a href="asciimath-editor.html#4702"><span data-toggle="tooltip" data-title="number">i</span></a> <span class="punctuation">&lt;</span> <a href="asciimath-editor.html#4492"><span data-toggle="tooltip" data-title="Element">node</span></a><span class="punctuation">.</span><span data-toggle="tooltip" data-title="HTMLCollection">children</span><span class="punctuation">.</span><span data-toggle="tooltip" data-title="number">length</span><span class="punctuation">;</span> <a href="asciimath-editor.html#4702"><span data-toggle="tooltip" data-title="number">i</span></a><span class="punctuation">++</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+            <a href="asciimath-editor.html#4656"><span data-toggle="tooltip" data-title="Text">textNode</span></a> <span class="punctuation">=</span> <span data-toggle="tooltip" data-title="Document">document</span><span class="punctuation">.</span><span class="member" data-toggle="tooltip" data-title="(data: string) =&gt; Text">createTextNode</span><span class="punctuation">(</span><span class="string">&#039;\n&#039;</span> <span class="punctuation">+</span> <a href="asciimath-editor.html#4545"><span data-toggle="tooltip" data-title="string">indentBefore</span></a><span class="punctuation">)</span><span class="punctuation">;</span>
+            <a href="asciimath-editor.html#4492"><span data-toggle="tooltip" data-title="Element">node</span></a><span class="punctuation">.</span><span class="member" data-toggle="tooltip" data-title="&lt;T extends Node&gt;(node: T, child: Node | null) =&gt; T">insertBefore</span><span class="punctuation">(</span><a href="asciimath-editor.html#4656"><span data-toggle="tooltip" data-title="Text">textNode</span></a><span class="punctuation">,</span> <a href="asciimath-editor.html#4492"><span data-toggle="tooltip" data-title="Element">node</span></a><span class="punctuation">.</span><span data-toggle="tooltip" data-title="HTMLCollection">children</span><span class="punctuation">[</span><a href="asciimath-editor.html#4702"><span data-toggle="tooltip" data-title="number">i</span></a><span class="punctuation">]</span><span class="punctuation">)</span>
+            <span class="keyword">this</span><span class="punctuation">.</span><a href="asciimath-editor.html#3869"><span class="member" data-toggle="tooltip" data-title="(node: Element, level: number) =&gt; Element">format</span></a><span class="punctuation">(</span><a href="asciimath-editor.html#4492"><span data-toggle="tooltip" data-title="Element">node</span></a><span class="punctuation">.</span><span data-toggle="tooltip" data-title="HTMLCollection">children</span><span class="punctuation">[</span><a href="asciimath-editor.html#4702"><span data-toggle="tooltip" data-title="number">i</span></a><span class="punctuation">]</span><span class="punctuation">,</span> <a href="asciimath-editor.html#4506"><span data-toggle="tooltip" data-title="number">level</span></a><span class="punctuation">)</span>
+            <span class="keyword">if</span> <span class="punctuation">(</span><a href="asciimath-editor.html#4492"><span data-toggle="tooltip" data-title="Element">node</span></a><span class="punctuation">.</span><span data-toggle="tooltip" data-title="Element | null">lastElementChild</span> <span class="punctuation">==</span> <a href="asciimath-editor.html#4492"><span data-toggle="tooltip" data-title="Element">node</span></a><span class="punctuation">.</span><span data-toggle="tooltip" data-title="HTMLCollection">children</span><span class="punctuation">[</span><a href="asciimath-editor.html#4702"><span data-toggle="tooltip" data-title="number">i</span></a><span class="punctuation">]</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+                <a href="asciimath-editor.html#4656"><span data-toggle="tooltip" data-title="Text">textNode</span></a> <span class="punctuation">=</span> <span data-toggle="tooltip" data-title="Document">document</span><span class="punctuation">.</span><span class="member" data-toggle="tooltip" data-title="(data: string) =&gt; Text">createTextNode</span><span class="punctuation">(</span><span class="string">&#039;\n&#039;</span> <span class="punctuation">+</span> <a href="asciimath-editor.html#4595"><span data-toggle="tooltip" data-title="string">indentAfter</span></a><span class="punctuation">)</span>
+                <a href="asciimath-editor.html#4492"><span data-toggle="tooltip" data-title="Element">node</span></a><span class="punctuation">.</span><span class="member" data-toggle="tooltip" data-title="&lt;T extends Node&gt;(node: T) =&gt; T">appendChild</span><span class="punctuation">(</span><a href="asciimath-editor.html#4656"><span data-toggle="tooltip" data-title="Text">textNode</span></a><span class="punctuation">)</span>
+            <span class="punctuation">}</span>
+        <span class="punctuation">}</span>
+        <span class="keyword">return</span> <a href="asciimath-editor.html#4492"><span data-toggle="tooltip" data-title="Element">node</span></a>
+    <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+</code></pre>
+<h2 id="defining-custom-element">Defining Custom Element</h2>
+<p>The last thing to do is to register our component, and the custom element
+name that we give to it.</p>
+<pre class="syntaxhighlight narrow-scrollbars"><code><span data-toggle="tooltip" data-title="CustomElementRegistry">customElements</span><span class="punctuation">.</span><span class="member" data-toggle="tooltip" data-title="(name: string, constructor: CustomElementConstructor, options?: ElementDefinitionOptions | undefined) =&gt; void">define</span><span class="punctuation">(</span><span class="string">&#039;asciimath-editor&#039;</span><span class="punctuation">,</span> <a href="asciimath-editor.html#573"><span class="typename" data-toggle="tooltip" data-title="typeof AsciiMathEditor">AsciiMathEditor</span></a><span class="punctuation">)</span>
+</code></pre>
+
+        </div>
+            <div class="sidepane narrow-scrollbars">
+                
+        <div class="pagemenu">
+            <h3>On This Page</h3>
+                <ul class="pagetree">
+                </ul>
+        </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <a class="footer-button" href="index.html">
+            <p>Previous</p>
+            <p>« Implementation</p>
+        </a>
+            <div class="footer-text">
+                <p>Copyright © 2024 Tommi Johtela</p>
+                <p>Generated by 
+                    <a href="https://johtela.github.io/litscript">LiTScript</a>
+                </p>
+            </div>
+            <a class="footer-button" href="../license.html">
+            <p>Next</p>
+            <p>License »</p>
+        </a>
+        </div>
+    
+        <script src="../dist/normal.js"></script>
+    </body>
+    </html>

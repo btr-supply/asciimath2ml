@@ -1,0 +1,26 @@
+[
+    {
+        "page": "README",
+        "file": "README.html",
+        "desc": "How to get started",
+        "bullet": "👓"
+    },
+    {
+        "page": "Implementation",
+        "file": "src/index.html",
+        "desc": "How it's done",
+        "bullet": "🐣"
+    },
+    {
+        "page": "Editor",
+        "file": "src/asciimath-editor.html",
+        "desc": "Editor for testing equations",
+        "bullet": "✍️"
+    },
+    {
+        "page": "License",
+        "file": "license.html",
+        "desc": "Legal stuff",
+        "bullet": "📜"
+    }
+]
