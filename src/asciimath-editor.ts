@@ -25,7 +25,7 @@ export class AsciiMathEditor extends ce.StyledElement {
             <span class="label">Preview</span>
     `
     private content = /*html*/`
-        <textarea name="input" id="input" rows="5" cols="40" spellcheck="false"
+        <textarea name="input" id="input" rows="5" cols="30" spellcheck="false"
             placeholder="Enter AsciiMath Equation">
         </textarea>
         <div id="preview">

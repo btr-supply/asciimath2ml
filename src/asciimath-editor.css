@@ -1,6 +1,7 @@
 .body {
     display: flex;
     align-items: flex-start;
+    flex-wrap: wrap;
 }
 #input {
     font-family: var(--mono-font);
@@ -11,7 +12,7 @@
     color: gray;
     font-family: var(--sans-font);
     font-size: 1rem;
-    flex-grow: 1;
+    max-width: 100%;
 }
 #preview math {
     color: var(--cnt-color);
@@ -31,6 +32,5 @@
     margin: 0;
     color: var(--cnt-color);
     overflow: auto;
-    max-width: 33vw;
-    max-height: 33vh;
+    max-height: 30vh;
 }
