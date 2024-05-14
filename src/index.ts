@@ -17,8 +17,8 @@
  * - reference to the symbol (token) table, and
  * - stack of character mapping tables currently in effect.
  * 
- * The type of the character mapping table is defined below. It's content is
- * described later on.
+ * The type for the character mapping table is defined below. It's content is
+ * described later in this file.
  */
 type CharTable = string[]
 
@@ -43,7 +43,9 @@ class Scanner {
     }
     /**
      * We skip spaces, tabs and linefeeds while scanning the input. Those
-     * characters are simply ignored and do not affect the output.
+     * characters are simply ignored and do not affect the output. This method
+     * returns the index where the next token starts. It returns a negative 
+     * number, if we are go past the end of input string.
      */
     skipWhitespace(): number {
         while (this.pos < this.input.length && /\s/.test(this.input[this.pos]))
@@ -51,7 +53,7 @@ class Scanner {
         return this.pos < this.input.length ? this.pos : -1
     }
     /**
-     * To prevent backtracking and to make the parsing deterministic, we 
+     * To avoid backtracking or storing lot of context information, we 
      * sometimes need to peek what the next symbol is without consuming any 
      * input. The `peekSymbol` method returns the next symbol in the input 
      * string and the input position to we need to set to skip the symbol.
@@ -254,8 +256,8 @@ interface Symbol {
  * symbol and value is a list of symbols starting with that character. The list 
  * is sorted in descending order according to symbols' lengths. So, the longest 
  * symbols appear first and the shortest last. This makes finding the symbol 
- * matching the current input more efficient (see `Scanner.peekSymbol` method 
- * above).
+ * matching the current input more efficient (see the `Scanner.peekSymbol` 
+ * method above).
  */
 type SymbolTable = { [firstLetter: string]: Symbol[] }
 /**
@@ -617,7 +619,7 @@ function parseSExpr(scanner: Scanner): [string, Symbol] {
     return [sym.parser(scanner), sym]
 }
 /**
- * The function below conforms to the Parser type signature and is used the 
+ * The function below conforms to the Parser type signature and is used when the 
  * symbol is not needed.
  */
 function sexprParser(scanner: Scanner): string {
@@ -662,17 +664,17 @@ function iexprParser(scanner: Scanner): string {
  * ### Expressions
  * 
  * The `E` rule is the main parsing rule for AsciiMath expressions. It parses
- * intermediate expressions in a sequence and also handles division operator.
- * The parser continues as long as any of the symbols listed in the
- * `terminators` list is not encountered. When that happens, we return the
- * expression to the caller.
+ * intermediate expressions in a sequence and also handles the division 
+ * operator. The parser continues as long as none of the symbols in the
+ * `terminators` list is encountered. When that happens, we return to the caller
+ * the expression constructed so far.
  */
 const terminators = [ SymbolKind.Eof, SymbolKind.RightBracket, 
     SymbolKind.MatrixCellSep, SymbolKind.MatrixRowSep, 
     SymbolKind.MatrixRightBracket ]
 /**
  * We need to check after each time `iexprParser` is called whether the next
- * symbol is a terminator. That's why it's done in two places inside the loop.
+ * symbol is a terminator. This is why it's done in two places inside the loop.
  */
 function exprParser(scanner: Scanner): string {
     let res = ""
