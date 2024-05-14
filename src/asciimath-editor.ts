@@ -1,8 +1,25 @@
+/**
+ * # Editor for Testing AsciiMath Equations
+ * 
+ * This simple [web component][] allows typing AsciiMath equations and previews
+ * the generated MathML elements.
+ * 
+ * We inherit the component from base class provided by [LiTScript][]. It 
+ * attaches the stylesheet we specify to the component.
+ * 
+ * [web component]: https://developer.mozilla.org/en-US/docs/Web/API/Web_Components
+ * [LiTScript]: https://johtela.github.io/litscript/
+ */
 import * as ce from 'litscript/src/custom-elem'
 import { asciiToMathML } from '.'
-
 import "./asciimath-editor.css"
-
+/**
+ * ## Structure
+ * 
+ * The structure of our component is defined in the `label` and `content`
+ * properties. Label is separate, because we must be able to change it's 
+ * contents later or.
+ */
 export class AsciiMathEditor extends ce.StyledElement {
     private label = /*html*/`
             <span class="label">Preview</span>
@@ -15,6 +32,12 @@ export class AsciiMathEditor extends ce.StyledElement {
             ${this.label}
         </div>
     `
+    /**
+     * ## Constructor
+     * 
+     * We call the base constructor with the style sheet name we want to load.
+     * The `.css` extension is omitted.
+     */
     constructor() {
         super("asciimath-editor")
     }
