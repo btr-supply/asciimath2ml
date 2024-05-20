@@ -800,9 +800,9 @@ const symbols: SymbolTable = {
         unary("arcsin"),
         unary("arccos"),
         unary("arctan"),
-        ident("alpha", "\u03B1"),
-        oper("aleph", "\u2135"),
-        unarySurround("abs", "|", "|"),
+        ident("alpha", "&#x03B1;"),
+        oper("aleph", "&#x2135;"),
+        unarySurround("abs", "&#124;", "&#124;"),
         textOper("and"),
         ident("a")
     ],
@@ -810,13 +810,13 @@ const symbols: SymbolTable = {
         unary("Arcsin"),
         unary("Arccos"),
         unary("Arctan"),
-        unarySurround("Abs", "|", "|"),
-        oper("AA", "\u2200"),
+        unarySurround("Abs", "&#124;", "&#124;"),
+        oper("AA", "&#x2200;"),
         ident("A")
     ],
     b: [
-        ident("beta", "\u03B2"),
-        unaryUnderOver("bar", "mover", "\u00AF"),
+        ident("beta", "&#x03B2;"),
+        unaryUnderOver("bar", "mover", "&#x00AF;"),
         unaryCharTable("bbb", bbbTable),
         unaryAttr("bb", "mstyle", 'style="font-weight: bold"'),
         ident("b")
@@ -828,14 +828,14 @@ const symbols: SymbolTable = {
         unaryAttr("cancel", "menclose", 'notation="updiagonalstrike"'),
         binaryAttr("color", "mstyle", "mathcolor"),
         binaryAttr("class", "mrow", "class"),
-        oper("cdots", "\u22EF"),
-        unarySurround("ceil", "\u2308", "\u2309"),
+        oper("cdots", "&#x22EF;"),
+        unarySurround("ceil", "&#x2308;", "&#x2309;"),
         unary("cosh"),
         unary("csch"),
         unary("cos"),
         unary("cot"),
         unary("csc"),
-        ident("chi", "\u03C7"),
+        ident("chi", "&#x03C7;"),
         unaryCharTable("cc", calTable),
         ident("c")
     ],
@@ -844,38 +844,38 @@ const symbols: SymbolTable = {
         unary("Cos"),
         unary("Cot"),
         unary("Csc"),
-        oper("CC", "\u2102"),
+        oper("CC", "&#x2102;"),
         ident("C")
     ],
     d: [
-        oper("diamonds", "\u22C4"),
-        ident("delta", "\u03B4"),
-        oper("ddots", "\u22F1"),
+        oper("diamonds", "&#x22C4;"),
+        ident("delta", "&#x03B4;"),
+        oper("ddots", "&#x22F1;"),
         unaryUnderOver("ddot", "mover", ".."),
-        oper("darr", "\u2193"),
-        oper("del", "\u2202"),
+        oper("darr", "&#x2193;"),
+        oper("del", "&#x2202;"),
         unary("det"),
         unaryUnderOver("dot", "mover", "."),
         textOper("dim"),
         ident("d")
     ],
     D: [
-        oper("Delta", "\u0394"),
+        oper("Delta", "&#x0394;"),
         ident("D")
     ],
     e: [
-        ident("epsilon", "\u03B5"),
-        ident("eta", "\u03B7"),
+        ident("epsilon", "&#x03B5;"),
+        ident("eta", "&#x03B7;"),
         unary("exp"),
         ident("e")
     ],
     E: [
-        oper("EE", "\u2203"),
+        oper("EE", "&#x2203;"),
         ident("E")
     ],
     f: [
-        unarySurround("floor", "\u230A", "\u230B"),
-        oper("frown", "\u2322"),
+        unarySurround("floor", "&#x230A;", "&#x230B;"),
+        oper("frown", "&#x2322;"),
         binaryEmbed("frac", "mfrac"),
         unaryCharTable("fr", frkTable),
         ident("f")
@@ -884,29 +884,29 @@ const symbols: SymbolTable = {
         ident("F")
     ],
     g: [
-        ident("gamma", "\u03B3"),
-        oper("grad", "\u2207"),
+        ident("gamma", "&#x03B3;"),
+        oper("grad", "&#x2207;"),
         unary("gcd"),
         textOper("glb"),
         ident("g")
     ],
     G: [
-        oper("Gamma", "\u0393"),
+        oper("Gamma", "&#x0393;"),
         ident("G")
     ],
     h: [
-        oper("harr", "\u2194"),
-        oper("hArr", "\u21D4"),
-        unaryUnderOver("hat", "mover", "\u005E"),
+        oper("harr", "&#x2194;"),
+        oper("hArr", "&#x21D4;"),
+        unaryUnderOver("hat", "mover", "&#x005E;"),
         ident("h")
     ],
     H: [
         ident("H")
     ],
     i: [
-        ident("iota", "\u03B9"),
-        oper("int", "\u222B"),
-        oper("in", "\u2208"),
+        ident("iota", "&#x03B9;"),
+        oper("int", "&#x222B;"),
+        oper("in", "&#x2208;"),
         textOper("if"),
         binaryAttr("id", "mrow", "id"),
         ident("i")
@@ -921,16 +921,16 @@ const symbols: SymbolTable = {
         ident("J")
     ],
     k: [
-        ident("kappa", "\u03BA"),
+        ident("kappa", "&#x03BA;"),
         ident("k")
     ],
     K: [
         ident("K")
     ],
     l: [
-        ident("lambda", "\u03BB"),
-        oper("larr", "\u2190"),
-        oper("lArr", "\u21D0"),
+        ident("lambda", "&#x03BB;"),
+        oper("larr", "&#x2190;"),
+        oper("lArr", "&#x21D0;"),
         underOverOper("lim", "lim"),
         unary("log"),
         unary("lcm"),
@@ -939,7 +939,7 @@ const symbols: SymbolTable = {
         ident("l")
     ],
     L: [
-        oper("Lambda", "\u039B"),
+        oper("Lambda", "&#x039B;"),
         underOverOper("Lim", "Lim"),
         unary("Log"),
         unary("Ln"),
@@ -949,54 +949,54 @@ const symbols: SymbolTable = {
         underOverOper("min"),
         underOverOper("max"),
         textOper("mod"),
-        ident("mu", "\u03BC"),
+        ident("mu", "&#x03BC;"),
         ident("m")
     ],
     M: [
         ident("M")
     ],
     n: [
-        unarySurround("norm", "\u2225", "\u2225"),
-        underOverOper("nnn", "\u22C2"),
-        oper("not", "\u00AC"),
-        oper("nn", "\u2229"),
-        ident("nu", "\u03BD"),
+        unarySurround("norm", "&#x2225;", "&#x2225;"),
+        underOverOper("nnn", "&#x22C2;"),
+        oper("not", "&#x00AC;"),
+        oper("nn", "&#x2229;"),
+        ident("nu", "&#x03BD;"),
         ident("n")
     ],
     N: [
-        oper("NN", "\u2115"),
+        oper("NN", "&#x2115;"),
         ident("N")
     ],
     o: [
-        unaryUnderOver("overarc", "mover", "\u23DC"),
+        unaryUnderOver("overarc", "mover", "&#x23DC;"),
         binaryEmbed("overset", "mover"),
-        unaryUnderOver("obrace", "mover", "\u23DE"),
-        ident("omega", "\u03C9"),
-        oper("oint", "\u222E"),
+        unaryUnderOver("obrace", "mover", "&#x23DE;"),
+        ident("omega", "&#x03C9;"),
+        oper("oint", "&#x222E;"),
         textOper("or"),
-        oper("o+", "\u2295"),
-        oper("ox", "\u2295"),
-        oper("o.", "\u2299"),
-        oper("oo", "\u221E"),
+        oper("o+", "&#x2295;"),
+        oper("ox", "&#x2295;"),
+        oper("o.", "&#x2299;"),
+        oper("oo", "&#x221E;"),
         ident("o")
     ],
     O: [
-        oper("Omega", "\u03A9"),
-        oper("O/", "\u2205"),
+        oper("Omega", "&#x03A9;"),
+        oper("O/", "&#x2205;"),
         ident("O")
     ],
     p: [
-        underOverOper("prod", "\u220F"),
-        ident("prop", "\u221D"),
-        ident("phi", "\u03D5"),
-        ident("psi", "\u03C8"),
-        ident("pi", "\u03C0"),
+        underOverOper("prod", "&#x220F;"),
+        ident("prop", "&#x221D;"),
+        ident("phi", "&#x03D5;"),
+        ident("psi", "&#x03C8;"),
+        ident("pi", "&#x03C0;"),
         ident("p")
     ],
     P: [
-        oper("Phi", "\u03A6"),
-        ident("Psi", "\u03A8"),
-        oper("Pi", "\u03A0"),
+        oper("Phi", "&#x03A6;"),
+        ident("Psi", "&#x03A8;"),
+        oper("Pi", "&#x03A0;"),
         ident("P")
     ],
     q: [
@@ -1005,83 +1005,83 @@ const symbols: SymbolTable = {
         ident("q")
     ],
     Q: [
-        oper("QQ", "\u211A"),
+        oper("QQ", "&#x211A;"),
         ident("Q")
     ],
     r: [
-        oper("rarr", "\u2192"),
-        oper("rArr", "\u21D2"),
+        oper("rarr", "&#x2192;"),
+        oper("rArr", "&#x21D2;"),
         binaryEmbed("root", "mroot"),
-        ident("rho", "\u03C1"),
+        ident("rho", "&#x03C1;"),
         ident("r")
     ],
     R: [
-        oper("RR", "\u211D"),
+        oper("RR", "&#x211D;"),
         ident("R")
     ],
     s: [
         binaryEmbed("stackrel", "mover"),
-        oper("setminus", "\\"),
-        oper("square", "\u25A1"),
-        ident("sigma", "\u03C3"),
-        underOverOper("sube", "\u2286"),
-        underOverOper("supe", "\u2287"),
+        oper("setminus", "&#92;"),
+        oper("square", "&#x25A1;"),
+        ident("sigma", "&#x03C3;"),
+        underOverOper("sube", "&#x2286;"),
+        underOverOper("supe", "&#x2287;"),
         unaryEmbed("sqrt", "msqrt"),
         unary("sinh"),
         unary("sech"),
-        underOverOper("sum", "\u2211"),
-        underOverOper("sub", "\u2282"),
-        underOverOper("sup", "\u2283"),
+        underOverOper("sum", "&#x2211;"),
+        underOverOper("sub", "&#x2282;"),
+        underOverOper("sup", "&#x2283;"),
         unary("sin"),
         unary("sec"),
         unaryAttr("sf", "mstyle", 'style="font-family: sans-serif"'),
         ident("s")
     ],
     S: [
-        oper("Sigma", "\u03A3"),
+        oper("Sigma", "&#x03A3;"),
         unary("Sinh"),
         unary("Sin"),
         unary("Sec"),
         ident("S")
     ],
     t: [
-        ident("theta", "\u03B8"),
-        unaryUnderOver("tilde", "mover", "~"),
+        ident("theta", "&#x03B8;"),
+        unaryUnderOver("tilde", "mover", "&#126;"),
         unaryEmbed("text", "mtext"),
         unary("tanh"),
         unary("tan"),
-        ident("tau", "\u03C4"),
+        ident("tau", "&#x03C4;"),
         unaryAttr("tt", "mstyle", 'style="font-family: monospace"'),
         ident("t")
     ],
     T: [
-        oper("Theta", "\u0398"),
+        oper("Theta", "&#x0398;"),
         unary("Tanh"),
         unary("Tan"),
-        oper("TT", "\u22A4"),
+        oper("TT", "&#x22A4;"),
         ident("T")
     ],
     u: [
         binaryEmbed("underset", "munder"),
-        ident("upsilon", "\u03C5"),
-        unaryUnderOver("ubrace", "munder", "\u23DF"),
-        oper("uarr", "\u2191"),
-        underOverOper("uuu", "\u22C3"),
-        oper("uu", "\u222A"),
-        unaryUnderOver("ul", "munder", "\u0332"),
+        ident("upsilon", "&#x03C5;"),
+        unaryUnderOver("ubrace", "munder", "&#x23DF;"),
+        oper("uarr", "&#x2191;"),
+        underOverOper("uuu", "&#x22C3;"),
+        oper("uu", "&#x222A;"),
+        unaryUnderOver("ul", "munder", "&#x0332;"),
         ident("u")
     ],
     U: [
         ident("U")
     ],
     v: [
-        ident("varepsilon", "\u025B"),
-        ident("vartheta", "\u03D1"),
-        ident("varphi", "\u03C6"),
-        oper("vdots", "\u22EE"),
-        unaryUnderOver("vec", "mover", "\u2192"),
-        underOverOper("vvv", "\u22C1"),
-        oper("vv", "\u2228"),
+        ident("varepsilon", "&#x025B;"),
+        ident("vartheta", "&#x03D1;"),
+        ident("varphi", "&#x03C6;"),
+        oper("vdots", "&#x22EE;"),
+        unaryUnderOver("vec", "mover", "&#x2192;"),
+        underOverOper("vvv", "&#x22C1;"),
+        oper("vv", "&#x2228;"),
         ident("v")
     ],
     V: [
@@ -1094,12 +1094,12 @@ const symbols: SymbolTable = {
         ident("W")
     ],
     x: [
-        ident("xi", "\u03BE"),
-        oper("xx", "\u00D7"),
+        ident("xi", "&#x03BE;"),
+        oper("xx", "&#x00D7;"),
         ident("x")
     ],
     X: [
-        ident("Xi", "\u039E"),
+        ident("Xi", "&#x039E;"),
         ident("X")
     ],
     y: [
@@ -1109,144 +1109,144 @@ const symbols: SymbolTable = {
         ident("Y")
     ],
     z: [
-        ident("zeta", "\u03B6"),
+        ident("zeta", "&#x03B6;"),
         ident("z")
     ],
     Z: [
-        oper("ZZ", "\u2124"),
+        oper("ZZ", "&#x2124;"),
         ident("Z")
     ],
     "-": [
-        oper("__|", "\u230B"),
-        oper("-<=", "\u2AAF"),
-        oper("->>", "\u21A0"),
-        oper("->", "\u2192"),
-        oper("-<", "\u227A"),
-        oper("-:", "\u00F7"),
-        oper("-=", "\u2261"),
-        oper("-+", "\u2213"),
-        oper("-", "\u2212"),
+        oper("__|", "&#x230B;"),
+        oper("-<=", "&#x2AAF;"),
+        oper("->>", "&#x21A0;"),
+        oper("->", "&#x2192;"),
+        oper("-<", "&#x227A;"),
+        oper("-:", "&#x00F7;"),
+        oper("-=", "&#x2261;"),
+        oper("-+", "&#x2213;"),
+        oper("-", "&#x2212;"),
     ],
     "*": [
-        oper("***", "\u22C6"),
-        oper("**", "\u2217"),
-        oper("*", "\u22C5"),
+        oper("***", "&#x22C6;"),
+        oper("**", "&#x2217;"),
+        oper("*", "&#x22C5;"),
     ],
     "+": [
-        oper("+-", "\u00B1"),
-        oper("+", "+")
+        oper("+-", "&#x00B1;"),
+        oper("+", "&#43;")
     ],
     "/": [
-        oper("/_\\", "\u25B3"),
-        oper("/_", "\u2220"),
-        oper("//", "/"),
+        oper("/_\\", "&#x25B3;"),
+        oper("/_", "&#x2220;"),
+        oper("//", "&#47;"),
         oper("/", "")
     ],
     "\\": [
-        oper("\\\\", "\\"),
-        oper("\\", "\u00A0")
+        oper("\\\\", "&#92;"),
+        oper("\\", "&#x00A0;")
     ],
     "|": [
-        oper("|><|", "\u22C8"),
-        oper("|><", "\u22C9"),
-        oper("|->", "\u21A6"),
-        oper("|--", "\u22A2"),
-        oper("|==", "\u22A8"),
-        oper("|__", "\u230A"),
-        leftMatrix("||:", "|"),
+        oper("|><|", "&#x22C8;"),
+        oper("|><", "&#x22C9;"),
+        oper("|->", "&#x21A6;"),
+        oper("|--", "&#x22A2;"),
+        oper("|==", "&#x22A8;"),
+        oper("|__", "&#x230A;"),
+        leftMatrix("||:", "&#124;"),
         leftMatrix("|::"),
-        oper("|~", "\u2308"),
-        leftBracket("|:", "|"),
-        rightMatrix("|)", ")"),
-        rightMatrix("|]", "]"),
-        rightMatrix("|}", "}"),
-        oper("|", "|")
+        oper("|~", "&#x2308;"),
+        leftBracket("|:", "&#124;"),
+        rightMatrix("|)", "&#41;"),
+        rightMatrix("|]", "&#93;"),
+        rightMatrix("|}", "&#125;"),
+        oper("|", "&#124;")
     ],
     "<": [
-        oper("<=>", "\u21D4"),
-        oper("<=", "\u2264"),
-        oper("<<", "\u226A"),
-        oper("<", "<"),
+        oper("<=>", "&#x21D4;"),
+        oper("<=", "&#x2264;"),
+        oper("<<", "&#x226A;"),
+        oper("<", "&#60;"),
     ],
     ">": [
-        oper(">->>", "\u2916"),
-        oper(">->", "\u21A3"),
-        oper("><|", "\u22CA"),
-        oper(">-=", "\u2AB0"),
-        oper(">=", "\u2265"),
-        oper(">-", "\u227B"),
-        oper(">>", "\u226B"),
-        oper(">", ">"),
+        oper(">->>", "&#x2916;"),
+        oper(">->", "&#x21A3;"),
+        oper("><|", "&#x22CA;"),
+        oper(">-=", "&#x2AB0;"),
+        oper(">=", "&#x2265;"),
+        oper(">-", "&#x227B;"),
+        oper(">>", "&#x226B;"),
+        oper(">", "&#62;"),
     ],
     "=": [
-        oper("=>", "\u21D2"),
-        oper("=", "="),
+        oper("=>", "&#x21D2;"),
+        oper("=", "&#61;"),
     ],
     "@": [
-        oper("@", "\u2218"),
+        oper("@", "&#x2218;"),
     ],
     "^": [
-        underOverOper("^^^", "\u22C0"),
-        oper("^^", "\u2227"),
+        underOverOper("^^^", "&#x22C0;"),
+        oper("^^", "&#x2227;"),
         oper("^", "")
     ],
     "~": [
-        oper("~~", "\u2248"),
-        oper("~=", "\u2245"),
-        oper("~|", "\u2309"),
-        oper("~", "\u223C"),
+        oper("~~", "&#x2248;"),
+        oper("~=", "&#x2245;"),
+        oper("~|", "&#x2309;"),
+        oper("~", "&#x223C;"),
     ],
     "!": [
-        oper("!in", "\u2209"),
-        oper("!=", "\u2260"),
-        oper("!", "!")
+        oper("!in", "&#x2209;"),
+        oper("!=", "&#x2260;"),
+        oper("!", "&#33;")
     ],
     ":": [
-        rightMatrix(":||", "|"),
+        rightMatrix(":||", "&#124;"),
         rightMatrix("::|"),
-        oper(":=", ":="),
-        rightBracket(":)", "\u232A"),
-        rightBracket(":|", "|"),
-        rightBracket(":}", "}"),
-        oper(":.", "\u2234"),
-        oper(":'", "\u2235"),
-        oper(":", ":")
+        oper(":=", "&#58;&#61;"),
+        rightBracket(":)", "&#x232A;"),
+        rightBracket(":|", "&#124;"),
+        rightBracket(":}", "&#125;"),
+        oper(":.", "&#x2234;"),
+        oper(":'", "&#x2235;"),
+        oper(":", "&#58;")
     ],
     ";": [
         matrixRowSep(";;"),
         matrixCellSep(";")
     ],
     ".": [
-        oper("...", "..."),
+        oper("...", "&#46;&#46;&#46;"),
     ],
     ",": [
-        oper(",", ",")
+        oper(",", "&#44;")
     ],
     "_": [
-        oper("_|_", "\u22A5"),
+        oper("_|_", "&#x22A5;"),
         oper("_", "")
     ],
     "'": [
-        oper("'", "\u2032")
+        oper("'", "&#x2032;")
     ],
     "(": [
-        leftMatrix("(|", "("),
-        leftBracket("(:", "\u2329"),
-        leftBracket("(", "(")
+        leftMatrix("(|", "&#40;"),
+        leftBracket("(:", "&#x2329;"),
+        leftBracket("(", "&#40;")
     ],
     ")": [
-        rightBracket(")", ")")
+        rightBracket(")", "&#41;")
     ],
     "[": [
-        leftMatrix("[|", "["),
-        leftBracket("[", "[")
+        leftMatrix("[|", "&#91;"),
+        leftBracket("[", "&#91;")
     ],
     "]": [
-        rightBracket("]", "]")
+        rightBracket("]", "&#93;")
     ],
     "{": [
-        leftMatrix("{|", "{"),
-        leftBracket("{:", "{"),
+        leftMatrix("{|", "&#123;"),
+        leftBracket("{:", "&#123;"),
         leftBracket("{")
     ],
     "}": [
