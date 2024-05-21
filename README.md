@@ -31,11 +31,15 @@ and symbol tables in the original implementation.
 Instead of editing DOM as the original version does, my version works purely 
 with strings. The library exposes exactly one function which takes the AsciiMath 
 equation as an argument and returns the corresponding MathML code as string.
-```ts
-export function asciiToMathML(input: string, inline = false): string
-```
+
+<<r:Public API>>
+
 The `inline` parameter determines whether MathML is inserted inline inside a
-paragraph or shown as a block.
+paragraph or shown as a block. If `escapePunctuation` flag is set, all 
+non-alphanumeric characters in text fragments are escaped with their 
+corresponding character entities. This removes some issues when the resulted 
+HTML is inserted to a markdown file as punctuation characters such as `_` will 
+not confuse the markdown parser.
 
 ## 🗽 Differences to Specification
 

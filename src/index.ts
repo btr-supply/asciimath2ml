@@ -26,13 +26,16 @@ class Scanner {
     private input: string
     private symbols: SymbolTable
     private charTables: CharTable[] = []
+    private escapePunctuation: boolean
     pos: number
     /**
      * Constructor initializes position to zero and sets the symbol table.
      */
-    constructor(input: string, symbols: SymbolTable) {
+    constructor(input: string, symbols: SymbolTable, 
+        escapePunctuation: boolean) {
         this.input = input
         this.symbols = symbols
+        this.escapePunctuation = escapePunctuation
         this.pos = 0        
     }
     /**
@@ -67,11 +70,17 @@ class Scanner {
             return [eof(), pos]
         let curr = this.input[pos]
         /**
-         * Check if input is a text `"..."` string enclosed in doublequotes.
+         * Check if input is a text `"..."` string enclosed in doublequotes. If
+         * `escapePunctuation` flag is on, replace non-alphanumeric characters
+         * with entity codes.
          */
         if (curr == '"') {
             while (++pos < this.input.length && this.input[pos] != '"') {}
-            return [text(this.input.slice(this.pos + 1, pos)), pos + 1]
+            let txt = this.input.slice(this.pos + 1, pos)
+            if (this.escapePunctuation)
+                txt = txt.replace(/[^A-Za-z0-9]/g, 
+                    ch => `&#${ch.charCodeAt(0)};`)
+            return [text(txt), pos + 1]
         }
         /**
          * Check if input is a number. The only accepted decimal separator is
@@ -1262,8 +1271,12 @@ const symbols: SymbolTable = {
  * parameter controls whether we set the display style of the equation to 
  * `block` or `inline`.
  */
-export function asciiToMathML(input: string, inline = false): string {
-    let scanner = new Scanner(input, symbols)
+//#region Public API
+export function asciiToMathML(input: string, inline = false, 
+    escapePunctuation = false): string 
+//#endregion
+{
+    let scanner = new Scanner(input, symbols, escapePunctuation)
     return /*html*/`<math display="${inline ? 'inline' : 'block'
         }"><mstyle displaystyle="true">${exprParser(scanner)}</mstyle></math>`
 }
