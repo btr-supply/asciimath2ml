@@ -499,7 +499,7 @@ function unarySurround(input: string, left: string, right: string): Symbol {
 function unaryAttrParser(tag: string, attr: string): Parser {
     return scanner => {
         let arg = sexprParser(scanner)
-        return /*html*/`<${tag} ${attr}">${arg}</${tag}>`
+        return /*html*/`<${tag} ${attr}>${arg}</${tag}>`
     }
 }
 
