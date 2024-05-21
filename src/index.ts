@@ -1043,7 +1043,8 @@ const symbols: SymbolTable = {
         underOverOper("sup", "&#x2283;"),
         unary("sin"),
         unary("sec"),
-        unaryAttr("sf", "mstyle", 'style="font-family: sans-serif"'),
+        unaryAttr("sf", "mstyle", 
+            'style="font-family: var(--sans-font), sans-serif"'),
         ident("s")
     ],
     S: [
@@ -1060,7 +1061,8 @@ const symbols: SymbolTable = {
         unary("tanh"),
         unary("tan"),
         ident("tau", "&#x03C4;"),
-        unaryAttr("tt", "mstyle", 'style="font-family: monospace"'),
+        unaryAttr("tt", "mstyle", 
+            'style="font-family: var(--mono-font), monospace"'),
         ident("t")
     ],
     T: [
