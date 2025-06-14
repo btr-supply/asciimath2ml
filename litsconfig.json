@@ -12,7 +12,7 @@
     "deployMode": "dev",
     "frontMatter": {
         "projectName": "AsciiMath2ML",
-        "repository": "https://github.com/johtela/asciimath2ml",
+        "repository": "https://github.com/btr-supply/asciimath2ml",
         "download": "https://www.npmjs.com/package/asciimath2ml",
         "license": "license.html",
         "footer": "Copyright © 2024 Tommi Johtela",

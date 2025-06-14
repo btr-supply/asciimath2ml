@@ -3,7 +3,7 @@
   "version": "1.0.7",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/johtela/asciimath2ml.git"
+    "url": "git+https://github.com/btr-supply/asciimath2ml.git"
   },
   "description": "AsciiMath to MathML converter",
   "main": "lib/index.js",

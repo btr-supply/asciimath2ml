@@ -72,13 +72,13 @@ class Scanner {
         /**
          * Check if input is a text `"..."` string enclosed in doublequotes. If
          * `escapePunctuation` flag is on, replace non-alphanumeric characters
-         * with entity codes.
+         * with entity codes. Preserve whitespace inside quotes.
          */
         if (curr == '"') {
             while (++pos < this.input.length && this.input[pos] != '"') {}
             let txt = this.input.slice(this.pos + 1, pos)
             if (this.escapePunctuation)
-                txt = txt.replace(/[^A-Za-z0-9]/g, 
+                txt = txt.replace(/[^A-Za-z0-9\s]/g, 
                     ch => `&#${ch.charCodeAt(0)};`)
             return [text(txt), pos + 1]
         }
@@ -148,6 +148,7 @@ class Scanner {
     charTable(): CharTable | undefined {
         return this.charTables[this.charTables.length - 1]
     }
+
 }
 /**
  * ## Character Tables
@@ -528,6 +529,29 @@ function unaryCharTable(input: string, table: string[]): Symbol {
         kind: SymbolKind.Default, 
         input, 
         parser: unaryCharTableParser(table)
+    }
+}
+/**
+ * Text parser that preserves whitespace inside parentheses
+ */
+function textWithWhitespace(input: string): Symbol {
+    return {
+        kind: SymbolKind.Default,
+        input,
+        parser: scanner => {
+            scanner.skipWhitespace()
+            if (scanner.pos < scanner['input'].length && scanner['input'][scanner.pos] === '(') {
+                scanner.pos++
+                let start = scanner.pos
+                while (scanner.pos < scanner['input'].length && scanner['input'][scanner.pos] !== ')') {
+                    scanner.pos++
+                }
+                let content = scanner['input'].slice(start, scanner.pos)
+                if (scanner.pos < scanner['input'].length) scanner.pos++ // skip ')'
+                return /*html*/`<mtext>${convertText(content, scanner.charTable())}</mtext>`
+            }
+            return /*html*/`<mtext></mtext>`
+        }
     }
 }
 /**
@@ -1057,7 +1081,7 @@ const symbols: SymbolTable = {
     t: [
         ident("theta", "&#x03B8;"),
         unaryUnderOver("tilde", "mover", "&#126;"),
-        unaryEmbed("text", "mtext"),
+        textWithWhitespace("text"),
         unary("tanh"),
         unary("tan"),
         ident("tau", "&#x03C4;"),
